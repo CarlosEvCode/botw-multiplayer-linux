@@ -1,153 +1,130 @@
-# The Legend of Zelda: Breath of the Wild Multiplayer on Linux
+# The Legend of Zelda: Breath of the Wild Multiplayer on Linux / SteamOS
 
-[English](README.md) | [Español](README.es.md)
+[English (README.md)](README.md) | [Español (README.es.md)](README.es.md)
 
-This repository provides an automated installation script and comprehensive technical documentation to run the multiplayer mod (*Milk Bar Launcher* / *Breath of the Wild Multiplayer*) on GNU/Linux distributions and SteamOS via Wine.
-
----
-
-## 1. System Architecture
-
-The multiplayer mod architecture consists of three core components:
-
-1. **Cemu Emulator (v1.26.2 x86_64 for Windows)**:
-   - Emulates the Wii U release of *The Legend of Zelda: Breath of the Wild*.
-   - Requires specific merged Graphic Packs enabled (`BreathOfTheWild_BCML`, `bcmlPatches/MilkBarLauncher`, and `ExtendedMemory`).
-
-2. **Milk Bar Launcher (.NET / WinUI Client)**:
-   - Handles player authentication, server discovery, and connection state.
-   - Injects `InjectDLL.dll` into the Cemu runtime process and communicates via Named Pipes to read and synchronize game memory.
-
-3. **MBL Dedicated Server (.NET Dedicated Server)**:
-   - Authoritative game server synchronizing player positions, animations, inventories, quests, and world states over UDP/TCP port `5050`.
+An automated deployment installer, dedicated TUI Manager, and comprehensive technical environment to host and play *The Legend of Zelda: Breath of the Wild Multiplayer* (*Milk Bar Launcher* / *Cemu 1.26.2*) on GNU/Linux and SteamOS via Wine.
 
 ---
 
-## 2. Linux & Wine Compatibility Analysis and Fixes
+## 🚀 Quick Install (1-Line Command)
 
-Through environment debugging and process tracing on Linux, five critical failure points were identified and resolved:
-
-### A. Process Isolation in Wine
-* **Issue:** When Cemu and Milk Bar Launcher run in separate Wineprefixes or standalone containerized environments, Milk Bar Launcher cannot access Cemu memory spaces or Named Pipes, causing indefinite hangs (*white screen "Cemu 1.26.2f - loading..."*).
-* **Fix:** Both Cemu and Milk Bar Launcher must strictly reside and execute within the same 64-bit Wineprefix (`~/.local/share/wineprefixes/botw-multiplayer`).
-
-### B. .NET Runtime Requirements
-* **Issue:** Modern releases of Milk Bar Launcher require `.NET Desktop Runtime 8.0 (x64)`. The exclusive presence of .NET 6.0 or older runtimes results in immediate termination with exit code 150.
-* **Fix:** The setup script automatically provisions `windowsdesktop-runtime-8.0.x-win-x64.exe` and `VC_redist.x64.exe` into the prefix.
-
-### C. BCML Model Validation ("Mod is not setup on BCML")
-* **Issue:** Upon clicking *Connect*, Milk Bar Launcher verifies the existence of all 32 player actor packages (`Jugador1.sbactorpack` to `Jugador32.sbactorpack`) in `store_dir/merged/content/Actor/Pack/` as defined in `settings.json`. If this path is missing or unlinked, the client halts connection.
-* **Fix:** `settings.json` is generated using internal virtual `C:` drive mappings, and a symbolic link from `BreathOfTheWild_BCML` to `AppData/Local/bcml/merged` is established.
-
-### D. Dedicated Server "localhost" Resolution Crash
-* **Issue:** Under Wine, .NET socket binding may throw a `NullReferenceException` when resolving string hostname `localhost`.
-* **Fix:** The `IP` configuration parameter in `ServerConfig.ini` is explicitly bound to `127.0.0.1`.
-
-### E. Missing Roaming AppData Resources
-* **Issue:** The dedicated server looks for `QuestFlagsNames.txt` and `ArmorMapping.txt` directly inside `%APPDATA%/BOTWM/`. When extracted with assembly prefixes (`BOTWM.DedicatedServer.AppdataFiles.*`), the server aborts with `FileNotFoundException`.
-* **Fix:** Required configuration files are automatically sanitized, copied, and placed in `AppData/Roaming/BOTWM/`.
-
----
-
-## 3. Repository and Release Artifacts
-
-| Resource | Location | Description |
-| :--- | :--- | :--- |
-| `setup_botw_multiplayer.sh` | Repository | Automated deployment and configuration bash script. |
-| `cemu_1.26.2.7z` | GitHub Releases | Preconfigured Cemu 1.26.2 build (~146 MB) containing Graphic Packs, 32 player models, and merged BCML patches. |
-| `MilkBarLauncher.zip` | GitHub Releases | Milk Bar Launcher client, injection binaries, and dedicated server. |
-| `windowsdesktop-runtime-8.0.31-win-x64.exe` | GitHub Releases | Official Microsoft .NET Desktop Runtime 8.0 x64 installer. |
-| `VC_redist.x64.exe` | GitHub Releases | Official Microsoft Visual C++ Redistributable 2015-2022 x64 installer. |
-
----
-
-## 4. Installation Guide
-
-### System Prerequisites
-Install the required base utilities using your distribution package manager:
+Run this single command in your terminal to download, configure, and install everything automatically:
 
 ```bash
-# Arch Linux / CachyOS / Manjaro:
-sudo pacman -S wine winetricks p7zip curl
-
-# Ubuntu / Debian:
-sudo apt install wine winetricks p7zip-full curl
-
-# Fedora:
-sudo dnf install wine winetricks p7zip p7zip-plugins curl
+curl -sSL https://raw.githubusercontent.com/CarlosEvCode/botw-multiplayer-linux/main/install.sh | bash
 ```
 
-### Automated Setup
+### Manual Installation (via Git)
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/CarlosEvCode/botw-multiplayer-linux.git
-   cd botw-multiplayer-linux
-   chmod +x setup_botw_multiplayer.sh
-   ```
+```bash
+git clone https://github.com/CarlosEvCode/botw-multiplayer-linux.git
+cd botw-multiplayer-linux
+chmod +x install.sh
+./install.sh
+```
 
-2. Run the installer specifying the absolute path to your unpacked BotW base game folder:
-   ```bash
-   ./setup_botw_multiplayer.sh "/absolute/path/to/The Legend of Zelda Breath of the Wild"
-   ```
-
-*Note: If binary archives are not present locally, the installer will automatically download them from the repository's GitHub Releases.*
-
-The script performs the following tasks automatically:
-1. Initializes a 64-bit Wineprefix at `~/.local/share/wineprefixes/botw-multiplayer`.
-2. Silently installs Microsoft Visual C++ and .NET 8.0 Desktop Runtime.
-3. Extracts and structures Cemu 1.26.2 and Milk Bar Launcher inside `drive_c`.
-4. Symlinks the base game, adjusts configuration files, and links BCML merged mod paths.
-5. Generates launcher scripts in `~/Zelda_BotW_Multiplayer/` and system desktop shortcuts (`~/.local/share/applications/`).
+> **Note:** The installer automatically provisions 64-bit Wine, Microsoft .NET 8.0 Desktop Runtime, Visual C++ 2015–2022, Cemu 1.26.2 (with merged BCML patches & 32 Link player models), Milk Bar Launcher, and the `botw-manager` TUI CLI.
 
 ---
 
-## 5. Running and Connecting
+## 🎮 TUI Manager (`botw-manager`)
 
-### Option A: Interactive TUI Manager (Recommended)
-You can manage the server, client, routes, and network in a single unified terminal UI:
+Manage servers, clients, gamemodes, routes, and network IPs directly from your terminal:
+
 ```bash
 botw-manager
-# or: ~/Zelda_BotW_Multiplayer/0_manager_tui.sh
 ```
-* **Keybindings:**
-  * `[s]` Start/Stop Dedicated Server
-  * `[m]` Launch Milk Bar Launcher
-  * `[c]` Launch Cemu 1.26.2
-  * `[t]` Copy Tailscale / Local IP to clipboard
-  * `[r]` Game paths, Update & DLC configuration tab
-  * `[i]` Send console command to the dedicated server
-  * `[Tab]` Switch views / tabs
-  * `[q]` Quit
 
-### Option B: Standalone Scripts
-Individual control scripts are also available in `~/Zelda_BotW_Multiplayer/`:
-
-1. **Start Dedicated Server (Host only):**
-   ```bash
-   ~/Zelda_BotW_Multiplayer/1_iniciar_servidor.sh
-   ```
-   - Enter `0` for standard co-op or `1` for special game modes (Prop Hunt, etc.).
-
-2. **Start Client (All players):**
-   ```bash
-   ~/Zelda_BotW_Multiplayer/2_iniciar_milkbar.sh
-   ```
-   - **Local Host:** Connect to `127.0.0.1`, port `5050`.
-   - **Remote Clients (via VPN such as Tailscale / ZeroTier):** Connect to Host VPN IP, port `5050`.
-
-3. **Cemu Configuration (Controllers / Graphics):**
-   ```bash
-   ~/Zelda_BotW_Multiplayer/3_iniciar_cemu.sh
-   ```
+### Key Features & Controls
+* **Global Navigation:** Press **`Tab`** / **`Shift+Tab`** to switch between tabs at any time.
+* **1. Dashboard:**
+  * **`[s]`**: Start / Stop Dedicated Server (live log console stream).
+  * **`[m]`**: Launch Milk Bar Launcher.
+  * **`[c]`**: Launch Cemu 1.26.2.
+  * **`[t]`**: Copy Tailscale / LAN IP to clipboard.
+  * **`[q]`**: Exit manager.
+* **2. Gamemodes:**
+  * **`←` / `→`**: Cycle game modes:
+    * **Standard Co-op (Free):** Full story co-op with customizable sync options.
+    * **Hunter vs Speedrunner:** Competitive Manhunt mode (automatically enforces individual player progress).
+    * **DeathSwap:** High-stakes survival swap mode (auto-locks survival rules).
+  * **`Space`**: Toggle individual synchronization rules (Quests, Shrines, Towers, Koroks, Enemies, Dungeons, Locations).
+  * **`s`**: Save rules (auto-restarts server if currently active).
+* **3. Paths & DLC:**
+  * **`↓` / `↑`**: Select field (Base Game, Update v208, DLC v80).
+  * **`f`**: Open native GUI folder browser (*Zenity* / *Kdialog*) to select folders with one click.
+  * **`Enter`**: Save and rebuild Wine/BCML symbolic links.
+* **4. Network:**
+  * View active Tailscale VPN, LAN, and ZeroTier IP addresses with connection guides.
+* **5. Settings:**
+  * **Language Switcher:** Toggle instantly between **English** (default) and **Español**.
+  * Project info, version, and repository links.
 
 ---
 
-## 6. Credits and Attribution
+## 🌐 Multiplayer Connection Guide
 
-- **Milk Bar Launcher & Dedicated Server**: Developed and maintained by the [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher) community.
-- **Cemu (Wii U Emulator)**: Developed by [Team Cemu](https://cemu.info/) under the Mozilla Public License 2.0.
-- **BCML (BotW Cross-Platform Mod Loader)**: Created by [NiceneNerd](https://github.com/NiceneNerd/BCML).
+### Host (Player hosting the Server)
+1. Launch `botw-manager` and press **`s`** to start the Dedicated Server.
+2. Press **`m`** to launch Milk Bar Launcher.
+3. In Milk Bar Launcher, set:
+   * **IP:** `127.0.0.1`
+   * **Port:** `5050`
+4. Click **Connect** (Cemu will launch automatically and sync your game).
+
+### Remote Friends (Players joining over the Internet)
+1. Install [Tailscale](https://tailscale.com/) (or ZeroTier) on both Host and Client machines.
+2. Host copies their Tailscale IP (press **`t`** in `botw-manager`).
+3. Remote players open Milk Bar Launcher and enter:
+   * **IP:** `Host's Tailscale IP` (e.g., `100.x.y.z`)
+   * **Port:** `5050`
+4. Click **Connect**.
+
+---
+
+## 🪟 Hyprland & Wayland Window Stability
+
+If you use **Hyprland**, add the following window rules to `~/.config/hypr/hyprland.lua` to prevent XWayland focus flickering and send Milk Bar Launcher silently to background Workspace 3:
+
+```lua
+o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
+  float = true,
+  center = true,
+  size = "1188 670",
+  suppress_event = "activate maximize fullscreen",
+  workspace = "3 silent",
+})
+o.window({ class = "^(cemu\\.exe)$" }, {
+  opaque = true,
+  suppress_event = "maximize",
+})
+```
+
+---
+
+## 🛠️ Technical Architecture & Linux Compatibility Notes
+
+For reference, the following technical solutions were implemented to ensure stability under Wine on Linux:
+
+1. **Shared 64-bit Wineprefix (`~/.local/share/wineprefixes/botw-multiplayer`):**
+   * Cemu and Milk Bar Launcher must run within the exact same Wineprefix so `InjectDLL.dll` and Named Pipes can hook into Cemu's game memory without white screen hangs.
+2. **Microsoft .NET 8.0 Desktop Runtime x64:**
+   * Installed directly into the Wineprefix to resolve exit code 150 crashes.
+3. **BCML Model Package Validation:**
+   * Pre-configured with all 32 Link player model packages (`Jugador1.sbactorpack` to `Jugador32.sbactorpack`) in `store_dir/merged/content/Actor/Pack/` and linked to `BreathOfTheWild_BCML`.
+4. **Dedicated Server Socket Binding:**
+   * `ServerConfig.ini` defaults to `IP=127.0.0.1` and `DefaultGamemode=True` to immediately bind socket `5050` and prevent `localhost` DNS resolve exceptions.
+5. **AppData Roaming Resource Sanitization:**
+   * Extracted `QuestFlagsNames.txt` and `ArmorMapping.txt` into `%APPDATA%/BOTWM/` to prevent `FileNotFoundException` during server start.
+
+---
+
+## 📜 Credits & Attribution
+
+* **Milk Bar Launcher & Dedicated Server:** Developed by the [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher) community.
+* **Cemu (Wii U Emulator):** Developed by [Team Cemu](https://cemu.info/) under Mozilla Public License 2.0.
+* **BCML:** Created by [NiceneNerd](https://github.com/NiceneNerd/BCML).
+* **Linux Manager & Deployment:** Maintained by [CarlosEvCode](https://github.com/CarlosEvCode).
 
 ### Disclaimer
-This repository and its associated resources do not contain, host, or distribute proprietary Nintendo game assets, official executable binaries (`.rpx`), encryption keys, or copyrighted materials. Users must supply their own legally acquired base game, update, and DLC files.
+This repository does not contain or distribute proprietary Nintendo game assets, official ROM executables (`.rpx`), encryption keys, or copyrighted materials. Users must provide their own legally dumped copy of *The Legend of Zelda: Breath of the Wild*, update files, and DLC.
