@@ -64,19 +64,27 @@ botw-manager
 
 ## 3. Multiplayer Connection Guide
 
-### Host (Player hosting the Server)
+### A. Local Host (Playing on the same PC)
 1. Launch `botw-manager` and press `[s]` to start the Dedicated Server.
 2. Press `[m]` to launch Milk Bar Launcher.
-3. In Milk Bar Launcher, set:
+3. In Milk Bar Launcher, enter:
    * **IP:** `127.0.0.1`
    * **Port:** `5050`
 4. Click **Connect** (Cemu will launch automatically and sync your game).
 
-### Remote Friends (Players joining over the Internet)
-1. Install [Tailscale](https://tailscale.com/) (or ZeroTier) on both Host and Client machines.
-2. Host copies their Tailscale IP (press `[t]` in `botw-manager`).
-3. Remote players open Milk Bar Launcher and enter:
-   * **IP:** `Host's Tailscale IP` (e.g., `100.x.y.z`)
+### B. Local Network (LAN / Same Wi-Fi or Ethernet)
+1. The Host starts the Dedicated Server in `botw-manager` (press `[s]`).
+2. The Host finds their **Local LAN IP** in `botw-manager` (e.g., `192.168.1.50`).
+3. Other players on the same home network open Milk Bar Launcher and enter:
+   * **IP:** `Host's LAN IP` (e.g., `192.168.1.50`)
+   * **Port:** `5050`
+4. Click **Connect**.
+
+### C. Internet / Remote Friends (Tailscale or ZeroTier VPN)
+1. Install and connect to the same VPN mesh network ([Tailscale](https://tailscale.com/) or [ZeroTier](https://www.zerotier.com/)) on both Host and Client machines.
+2. The Host starts the Dedicated Server and copies their VPN IP (press `[t]` in `botw-manager`).
+3. Remote friends open Milk Bar Launcher and enter:
+   * **IP:** `Host's Tailscale/ZeroTier IP` (e.g., `100.x.y.z` or `10.x.y.z`)
    * **Port:** `5050`
 4. Click **Connect**.
 

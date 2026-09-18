@@ -291,6 +291,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.Network.TailscaleIP != "" {
 				_ = network.CopyToClipboard(m.Network.TailscaleIP)
 				m.SetNotification(fmt.Sprintf(i18n.T("notif.ip_copied"), m.Network.TailscaleIP), 2*time.Second)
+			} else if m.Network.ZeroTierIP != "" {
+				_ = network.CopyToClipboard(m.Network.ZeroTierIP)
+				m.SetNotification(fmt.Sprintf(i18n.T("notif.zt_ip_copied"), m.Network.ZeroTierIP), 2*time.Second)
 			} else if m.Network.LocalIP != "" {
 				_ = network.CopyToClipboard(m.Network.LocalIP)
 				m.SetNotification(fmt.Sprintf(i18n.T("notif.local_ip_copied"), m.Network.LocalIP), 2*time.Second)

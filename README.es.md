@@ -64,7 +64,7 @@ botw-manager
 
 ## 3. Guía de Conexión Multijugador
 
-### Anfitrión (Host / Servidor)
+### A. Anfitrión Local (Jugando en la misma PC)
 1. Abre `botw-manager` y presiona `[s]` para iniciar el Servidor Dedicado.
 2. Presiona `[m]` para abrir Milk Bar Launcher.
 3. En Milk Bar Launcher, ingresa:
@@ -72,11 +72,19 @@ botw-manager
    * **Puerto:** `5050`
 4. Haz clic en **Connect** (Cemu se abrirá automáticamente sincronizado).
 
-### Jugadores Remotos (Amigos por Internet)
-1. Instala [Tailscale](https://tailscale.com/) (o ZeroTier) tanto en el equipo del Host como en el de los clientes.
-2. El Host copia su IP de Tailscale (presionando `[t]` en `botw-manager`).
+### B. Red Local (LAN / Misma Wi-Fi o Ethernet)
+1. El Anfitrión inicia el Servidor Dedicado en `botw-manager` (presionando `[s]`).
+2. El Anfitrión consulta su **IP Local LAN** en `botw-manager` (ej. `192.168.1.50`).
+3. Los demás jugadores en la misma red local abren Milk Bar Launcher e ingresan:
+   * **IP:** `IP LAN del Anfitrión` (ej. `192.168.1.50`)
+   * **Puerto:** `5050`
+4. Hacen clic en **Connect**.
+
+### C. Internet / Amigos Remotos (VPN Tailscale o ZeroTier)
+1. Instala y conéctate a la misma red virtual ([Tailscale](https://tailscale.com/) o [ZeroTier](https://www.zerotier.com/)) tanto en el equipo del Anfitrión como en el de los clientes.
+2. El Anfitrión inicia el Servidor Dedicado y copia su IP de VPN (presionando `[t]` en `botw-manager`).
 3. Los jugadores remotos abren Milk Bar Launcher e ingresan:
-   * **IP:** `IP de Tailscale del Host` (ej. `100.x.y.z`)
+   * **IP:** `IP de Tailscale o ZeroTier del Anfitrión` (ej. `100.x.y.z` o `10.x.y.z`)
    * **Puerto:** `5050`
 4. Hacen clic en **Connect**.
 

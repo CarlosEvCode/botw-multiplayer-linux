@@ -114,13 +114,21 @@ func (m Model) renderDashboard(width int) string {
 	)
 
 	// Network Quick Info
-	tsIP := m.Network.TailscaleIP
-	if tsIP == "" {
-		tsIP = i18n.T("dash.net_notfound")
+	var vpnLabel, vpnIP string
+	if m.Network.TailscaleIP != "" {
+		vpnLabel = "IP Tailscale:"
+		vpnIP = m.Network.TailscaleIP
+	} else if m.Network.ZeroTierIP != "" {
+		vpnLabel = "IP ZeroTier:"
+		vpnIP = m.Network.ZeroTierIP
+	} else {
+		vpnLabel = "IP VPN:"
+		vpnIP = i18n.T("dash.net_notfound")
 	}
+
 	netContent := fmt.Sprintf(
 		"%-15s %s\n%-15s %s\n%-15s %s\n\n%-15s %s",
-		LabelStyle.Render(i18n.T("dash.net_tailscale")), ValueStyle.Render(tsIP),
+		LabelStyle.Render(vpnLabel), ValueStyle.Render(vpnIP),
 		LabelStyle.Render(i18n.T("dash.net_local")), ValueStyle.Render(m.Network.LocalIP),
 		LabelStyle.Render(i18n.T("dash.net_port")), ValueStyle.Render(m.Config.ServerCfg.Port+" (UDP/TCP)"),
 		LabelStyle.Render(i18n.T("dash.net_pass")), ValueStyle.Render(nonEmpty(m.Config.ServerCfg.Password, i18n.T("dash.net_nopass"))),
