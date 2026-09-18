@@ -295,12 +295,19 @@ func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
 	// Symlink base game in C:\Games\
 	gamesDir := filepath.Join(c.DriveC, "Games")
 	_ = os.MkdirAll(gamesDir, 0755)
-	if c.BaseGame != "" {
-		targetLink := filepath.Join(gamesDir, gameFolder)
-		if filepath.Clean(c.BaseGame) != filepath.Clean(targetLink) {
-			_ = os.Remove(targetLink)
-			_ = os.Symlink(c.BaseGame, targetLink)
+
+	// Clean out stale symlinks in C:\Games\ to prevent ghost games in Cemu
+	if entries, err := os.ReadDir(gamesDir); err == nil {
+		for _, entry := range entries {
+			fullEntry := filepath.Join(gamesDir, entry.Name())
+			_ = os.Remove(fullEntry)
 		}
+	}
+
+	validBase, _ := c.ValidateBaseGame()
+	if c.BaseGame != "" && validBase {
+		targetLink := filepath.Join(gamesDir, gameFolder)
+		_ = os.Symlink(c.BaseGame, targetLink)
 	}
 
 	// Handle Update symlink if provided
@@ -376,15 +383,14 @@ func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 	rpx2 := filepath.Join(c.BaseGame, "code/U-King.rpx")
 	content1 := filepath.Join(norm, "content")
 	content2 := filepath.Join(c.BaseGame, "content")
+	code1 := filepath.Join(norm, "code")
+	code2 := filepath.Join(c.BaseGame, "code")
 
 	if fileExists(rpx1) || fileExists(rpx2) {
 		return true, i18n.T("paths.val_rpx")
 	}
-	if dirExists(content1) || dirExists(content2) {
+	if (dirExists(content1) && dirExists(code1)) || (dirExists(content2) && dirExists(code2)) {
 		return true, i18n.T("paths.val_content")
-	}
-	if dirExists(norm) || dirExists(c.BaseGame) {
-		return true, i18n.T("paths.val_dir")
 	}
 	return false, i18n.T("paths.val_err_base")
 }

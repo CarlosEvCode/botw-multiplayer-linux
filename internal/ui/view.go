@@ -229,7 +229,14 @@ func (m Model) renderPathsTab(width int) string {
 		if ok {
 			return StatusOk.String()
 		}
-		return StatusWarn.String()
+		return StatusError.String()
+	}
+
+	formatMsg := func(ok bool, msg string) string {
+		if ok {
+			return lipgloss.NewStyle().Foreground(ColorSuccess).Render(msg)
+		}
+		return lipgloss.NewStyle().Foreground(ColorDanger).Render(msg)
 	}
 
 	fieldHeader := func(idx int, title string, ok bool) string {
@@ -247,15 +254,15 @@ func (m Model) renderPathsTab(width int) string {
 			"%s",
 		fieldHeader(0, i18n.T("paths.base"), baseValid),
 		m.BaseInput.View(),
-		DescStyle.Render(i18n.T("paths.status")), ValueStyle.Render(baseMsg),
+		DescStyle.Render(i18n.T("paths.status")), formatMsg(baseValid, baseMsg),
 
 		fieldHeader(1, i18n.T("paths.update"), upValid),
 		m.UpdateInput.View(),
-		DescStyle.Render(i18n.T("paths.status")), ValueStyle.Render(upMsg),
+		DescStyle.Render(i18n.T("paths.status")), formatMsg(upValid, upMsg),
 
 		fieldHeader(2, i18n.T("paths.dlc"), dlcValid),
 		m.DLCInput.View(),
-		DescStyle.Render(i18n.T("paths.status")), ValueStyle.Render(dlcMsg),
+		DescStyle.Render(i18n.T("paths.status")), formatMsg(dlcValid, dlcMsg),
 
 		DescStyle.Render(i18n.T("paths.footer_hint")),
 	)
