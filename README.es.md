@@ -92,7 +92,7 @@ botw-manager
 
 ## 4. Estabilidad de Ventanas en Hyprland / Wayland
 
-Si usas **Hyprland**, añade las siguientes reglas a tu archivo `~/.config/hypr/hyprland.lua` para evitar parpadeos en XWayland y enviar Milk Bar Launcher en segundo plano al Workspace 3:
+Si usas **Hyprland**, añade las siguientes reglas a tu archivo `~/.config/hypr/hyprland.lua` para evitar parpadeos en XWayland y mantener Milk Bar Launcher estable como ventana flotante:
 
 ```lua
 o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
@@ -100,7 +100,12 @@ o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
   center = true,
   size = "1188 670",
   suppress_event = "activate maximize fullscreen",
-  workspace = "3 silent",
+})
+o.window({ title = "^(Breath of the Wild Multiplayer)$" }, {
+  float = true,
+  center = true,
+  size = "1188 670",
+  suppress_event = "activate maximize fullscreen",
 })
 o.window({ class = "^(cemu\\.exe)$" }, {
   opaque = true,

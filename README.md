@@ -92,7 +92,7 @@ botw-manager
 
 ## 4. Hyprland & Wayland Window Stability
 
-If you use **Hyprland**, add the following window rules to `~/.config/hypr/hyprland.lua` to prevent XWayland focus flickering and send Milk Bar Launcher silently to background Workspace 3:
+If you use **Hyprland**, add the following window rules to `~/.config/hypr/hyprland.lua` to prevent XWayland focus flickering and keep Milk Bar Launcher stable as a floating window:
 
 ```lua
 o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
@@ -100,7 +100,12 @@ o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
   center = true,
   size = "1188 670",
   suppress_event = "activate maximize fullscreen",
-  workspace = "3 silent",
+})
+o.window({ title = "^(Breath of the Wild Multiplayer)$" }, {
+  float = true,
+  center = true,
+  size = "1188 670",
+  suppress_event = "activate maximize fullscreen",
 })
 o.window({ class = "^(cemu\\.exe)$" }, {
   opaque = true,
