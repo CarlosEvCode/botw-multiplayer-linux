@@ -77,7 +77,7 @@ var translations = map[Language]map[string]string{
 		"tab.gamemodes": "2. Gamemodes",
 		"tab.paths":     "3. Paths & DLC",
 		"tab.network":   "4. Network",
-		"tab.settings":  "5. Settings & About",
+		"tab.settings":  "5. Settings",
 
 		// Dashboard
 		"dash.services_title": "SERVICES STATUS",
@@ -152,7 +152,7 @@ var translations = map[Language]map[string]string{
 		"net.footer_hint":  "[t: Copy IP to clipboard]  [Tab: Next tab]",
 
 		// Settings & About
-		"set.title":          "SETTINGS & ABOUT",
+		"set.title":          "SETTINGS",
 		"set.pref_title":     "APPLICATION PREFERENCES:",
 		"set.lang_label":     "Language / Idioma:",
 		"set.about_title":    "ABOUT THIS PROJECT:",
@@ -200,7 +200,7 @@ var translations = map[Language]map[string]string{
 		"tab.gamemodes": "2. Gamemodes",
 		"tab.paths":     "3. Rutas & DLC",
 		"tab.network":   "4. Red",
-		"tab.settings":  "5. Ajustes & Info",
+		"tab.settings":  "5. Ajustes",
 
 		// Dashboard
 		"dash.services_title": "ESTADO DE SERVICIOS",
@@ -275,7 +275,7 @@ var translations = map[Language]map[string]string{
 		"net.footer_hint":  "[t: Copiar IP al portapapeles]  [Tab: Siguiente pestana]",
 
 		// Settings & About
-		"set.title":          "AJUSTES & ACERCA DE",
+		"set.title":          "AJUSTES",
 		"set.pref_title":     "PREFERENCIAS DE LA APLICACION:",
 		"set.lang_label":     "Idioma / Language:",
 		"set.about_title":    "ACERCA DE ESTE PROYECTO:",
