@@ -178,7 +178,7 @@ func (m Model) renderGamemodesTab(width int) string {
 	items := []string{
 		statusBanner,
 		"",
-		fmt.Sprintf("%s: %s", cur(0, "Modo de Juego Especial"), KeyStyle.Render(modeStr)),
+		fmt.Sprintf("%s: %s  %s", cur(0, "Modo de Juego Especial"), KeyStyle.Render("◄  "+modeStr+"  ►"), DescStyle.Render("[← / → para cambiar]")),
 		"",
 		syncHeader,
 		fmt.Sprintf("%s %s Sincronizar Misiones (QuestSync)", cur(1, chk(m.Config.ServerCfg.QuestSync, isLockedProgress)), ""),
@@ -193,7 +193,7 @@ func (m Model) renderGamemodesTab(width int) string {
 		fmt.Sprintf("%s: %s", cur(8, "Contrasena"), m.ServerPassIn.View()),
 		fmt.Sprintf("%s: %s", cur(9, "Descripcion"), m.ServerDescIn.View()),
 		"",
-		DescStyle.Render("[Espacio/Enter: Alternar opcion]  [s / Enter en inputs: Guardar y Aplicar]  [Esc: Volver]"),
+		DescStyle.Render("[Tab: Pestana]  [←/→: Cambiar modo]  [Espacio: Alternar opcion]  [s: Guardar y Aplicar]  [Esc: Volver]"),
 	}
 
 	return BoxStyle.Width(boxWidth).Render(

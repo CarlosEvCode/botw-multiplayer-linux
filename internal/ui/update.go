@@ -102,7 +102,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.ServerPassIn.Blur()
 					m.CurrentTab = TabDashboard
 					return m, nil
-				case "down":
+				case "down", "enter":
 					m.ServerPassIn.Blur()
 					m.GamemodeCursor = 9
 					m.updateGamemodeFocus()
@@ -112,7 +112,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.GamemodeCursor = 7
 					m.updateGamemodeFocus()
 					return m, nil
-				case "enter", "ctrl+s":
+				case "ctrl+s":
 					m.saveGamemodeSettings()
 					return m, nil
 				}
@@ -124,7 +124,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.ServerDescIn.Blur()
 					m.CurrentTab = TabDashboard
 					return m, nil
-				case "down":
+				case "down", "enter":
 					m.ServerDescIn.Blur()
 					m.GamemodeCursor = 0
 					m.updateGamemodeFocus()
@@ -134,7 +134,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.GamemodeCursor = 8
 					m.updateGamemodeFocus()
 					return m, nil
-				case "enter", "ctrl+s":
+				case "ctrl+s":
 					m.saveGamemodeSettings()
 					return m, nil
 				}
@@ -154,8 +154,26 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
 				m.updateGamemodeFocus()
 				return m, nil
+			case "right", "l":
+				if m.GamemodeCursor == 0 {
+					m.changeSpecialMode(1)
+				} else if m.GamemodeCursor >= 1 && m.GamemodeCursor <= 7 {
+					m.toggleSyncOption(m.GamemodeCursor)
+				}
+				return m, nil
+			case "left", "h":
+				if m.GamemodeCursor == 0 {
+					m.changeSpecialMode(-1)
+				} else if m.GamemodeCursor >= 1 && m.GamemodeCursor <= 7 {
+					m.toggleSyncOption(m.GamemodeCursor)
+				}
+				return m, nil
 			case " ", "enter":
-				m.toggleGamemodeOption()
+				if m.GamemodeCursor == 0 {
+					m.changeSpecialMode(1)
+				} else if m.GamemodeCursor >= 1 && m.GamemodeCursor <= 7 {
+					m.toggleSyncOption(m.GamemodeCursor)
+				}
 				return m, nil
 			case "ctrl+s", "s":
 				m.saveGamemodeSettings()
@@ -288,42 +306,48 @@ func (m *Model) SetNotification(text string, dur time.Duration) {
 	m.NotifyTimeout = time.Now().Add(dur)
 }
 
-func (m *Model) toggleGamemodeOption() {
-	switch m.GamemodeCursor {
-	case 0:
-		m.Config.ServerCfg.SpecialMode = (m.Config.ServerCfg.SpecialMode + 1) % 3
-		switch m.Config.ServerCfg.SpecialMode {
-		case 0: // Cooperativo Estándar
-			// Restore co-op defaults if all were disabled
-			if !m.Config.ServerCfg.QuestSync && !m.Config.ServerCfg.ShrineSync {
-				m.Config.ServerCfg.QuestSync = true
-				m.Config.ServerCfg.ShrineSync = true
-				m.Config.ServerCfg.TowerSync = true
-				m.Config.ServerCfg.KorokSync = true
-				m.Config.ServerCfg.EnemySync = true
-				m.Config.ServerCfg.DungeonSync = true
-				m.Config.ServerCfg.LocationSync = true
-			}
-			m.SetNotification("Modo: Cooperativo Libre - Sincronizaciones desbloqueadas", 2*time.Second)
-		case 1: // Hunter vs Speedrunner
-			m.Config.ServerCfg.QuestSync = false
-			m.Config.ServerCfg.ShrineSync = false
-			m.Config.ServerCfg.TowerSync = false
-			m.Config.ServerCfg.KorokSync = false
-			m.Config.ServerCfg.DungeonSync = false
-			m.Config.ServerCfg.LocationSync = false
+func (m *Model) changeSpecialMode(delta int) {
+	newMode := (m.Config.ServerCfg.SpecialMode + delta) % 3
+	if newMode < 0 {
+		newMode += 3
+	}
+	m.Config.ServerCfg.SpecialMode = newMode
+	switch m.Config.ServerCfg.SpecialMode {
+	case 0: // Cooperativo Estándar
+		if !m.Config.ServerCfg.QuestSync && !m.Config.ServerCfg.ShrineSync {
+			m.Config.ServerCfg.QuestSync = true
+			m.Config.ServerCfg.ShrineSync = true
+			m.Config.ServerCfg.TowerSync = true
+			m.Config.ServerCfg.KorokSync = true
 			m.Config.ServerCfg.EnemySync = true
-			m.SetNotification("Modo: Hunter vs Speedrunner - Progreso individual activado", 2*time.Second)
-		case 2: // DeathSwap
-			m.Config.ServerCfg.QuestSync = false
-			m.Config.ServerCfg.ShrineSync = false
-			m.Config.ServerCfg.TowerSync = false
-			m.Config.ServerCfg.KorokSync = false
-			m.Config.ServerCfg.DungeonSync = false
-			m.Config.ServerCfg.LocationSync = false
-			m.Config.ServerCfg.EnemySync = false
-			m.SetNotification("Modo: DeathSwap - Supervivencia individual activada", 2*time.Second)
+			m.Config.ServerCfg.DungeonSync = true
+			m.Config.ServerCfg.LocationSync = true
 		}
+		m.SetNotification("Modo: Cooperativo Libre - Sincronizaciones desbloqueadas", 2*time.Second)
+	case 1: // Hunter vs Speedrunner
+		m.Config.ServerCfg.QuestSync = false
+		m.Config.ServerCfg.ShrineSync = false
+		m.Config.ServerCfg.TowerSync = false
+		m.Config.ServerCfg.KorokSync = false
+		m.Config.ServerCfg.DungeonSync = false
+		m.Config.ServerCfg.LocationSync = false
+		m.Config.ServerCfg.EnemySync = true
+		m.SetNotification("Modo: Hunter vs Speedrunner - Progreso individual activado", 2*time.Second)
+	case 2: // DeathSwap
+		m.Config.ServerCfg.QuestSync = false
+		m.Config.ServerCfg.ShrineSync = false
+		m.Config.ServerCfg.TowerSync = false
+		m.Config.ServerCfg.KorokSync = false
+		m.Config.ServerCfg.DungeonSync = false
+		m.Config.ServerCfg.LocationSync = false
+		m.Config.ServerCfg.EnemySync = false
+		m.SetNotification("Modo: DeathSwap - Supervivencia individual activada", 2*time.Second)
+	}
+	_ = m.Config.SaveServerConfig(m.Config.ServerCfg)
+}
+
+func (m *Model) toggleSyncOption(cursor int) {
+	switch cursor {
 	case 1:
 		if m.Config.ServerCfg.SpecialMode != 0 {
 			m.SetNotification("Sincronizacion de misiones bloqueada en modo competitivo", 2*time.Second)
