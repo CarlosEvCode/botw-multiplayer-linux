@@ -23,6 +23,12 @@ const (
 type LogMsg string
 type TickMsg time.Time
 
+type PickedDirMsg struct {
+	Field int
+	Path  string
+	Err   error
+}
+
 type Model struct {
 	Config       *config.ManagerConfig
 	Process      *process.ProcessManager

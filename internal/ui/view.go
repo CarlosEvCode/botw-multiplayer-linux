@@ -206,24 +206,32 @@ func (m Model) renderPathsTab(width int) string {
 		return StatusWarn.String()
 	}
 
+	fieldHeader := func(idx int, title string, ok bool) string {
+		prefix := "  "
+		if m.PathFocusIdx == idx {
+			prefix = lipgloss.NewStyle().Bold(true).Foreground(ColorHighlight).Render("▶ ")
+		}
+		return fmt.Sprintf("%s%s %s  %s", prefix, LabelStyle.Render(title), badge(ok), KeyStyle.Render("[Ctrl+O / F2: Explorar]"))
+	}
+
 	content := fmt.Sprintf(
-		"%s %s\n%s\n  %s %s\n\n"+
-			"%s %s\n%s\n  %s %s\n\n"+
-			"%s %s\n%s\n  %s %s\n\n"+
+		"%s\n  %s\n  %s %s\n\n"+
+			"%s\n  %s\n  %s %s\n\n"+
+			"%s\n  %s\n  %s %s\n\n"+
 			"%s",
-		LabelStyle.Render("1. Carpeta del Juego Base:"), badge(baseValid),
+		fieldHeader(0, "1. Carpeta del Juego Base (Zelda BotW):", baseValid),
 		m.BaseInput.View(),
 		DescStyle.Render("Estado:"), ValueStyle.Render(baseMsg),
 
-		LabelStyle.Render("2. Carpeta de Actualizacion (Update v208):"), badge(upValid),
+		fieldHeader(1, "2. Carpeta de Actualizacion (Update v208):", upValid),
 		m.UpdateInput.View(),
 		DescStyle.Render("Estado:"), ValueStyle.Render(upMsg),
 
-		LabelStyle.Render("3. Carpeta de DLC (v80):"), badge(dlcValid),
+		fieldHeader(2, "3. Carpeta de DLC (v80):", dlcValid),
 		m.DLCInput.View(),
 		DescStyle.Render("Estado:"), ValueStyle.Render(dlcMsg),
 
-		DescStyle.Render("[Tab/Flechas: Cambiar campo]  [Enter/Ctrl+S: Guardar y Aplicar]  [Esc: Volver]"),
+		DescStyle.Render("[Tab/Flechas: Cambiar campo]  [Ctrl+O / F2: Abrir Explorador GUI]  [Enter: Guardar]  [Esc: Volver]"),
 	)
 
 	return BoxStyle.Width(boxWidth).Render(

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -72,6 +73,48 @@ func GetDefaultPrefix() string {
 	return filepath.Join(home, ".local/share/wineprefixes/botw-multiplayer")
 }
 
+func NormalizeGameDir(p string) string {
+	cleaned := strings.TrimSpace(p)
+	if cleaned == "" {
+		return ""
+	}
+	cleaned = strings.TrimRight(cleaned, "/\\")
+	baseName := filepath.Base(cleaned)
+	if baseName == "content" || baseName == "code" || baseName == "meta" {
+		cleaned = filepath.Dir(cleaned)
+	}
+	return cleaned
+}
+
+func PickDirectory(title, initialDir string) (string, error) {
+	// Try zenity first
+	if _, err := exec.LookPath("zenity"); err == nil {
+		args := []string{"--file-selection", "--directory", "--title=" + title}
+		if initialDir != "" && dirExists(initialDir) {
+			args = append(args, "--filename="+filepath.Clean(initialDir)+"/")
+		}
+		cmd := exec.Command("zenity", args...)
+		out, err := cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(out)), nil
+	}
+
+	// Try kdialog
+	if _, err := exec.LookPath("kdialog"); err == nil {
+		args := []string{"--getexistingdirectory", initialDir, "--title", title}
+		cmd := exec.Command("kdialog", args...)
+		out, err := cmd.Output()
+		if err != nil {
+			return "", err
+		}
+		return strings.TrimSpace(string(out)), nil
+	}
+
+	return "", fmt.Errorf("no GUI file picker found (zenity or kdialog required)")
+}
+
 func LoadConfig() (*ManagerConfig, error) {
 	home, _ := os.UserHomeDir()
 	user := os.Getenv("USER")
@@ -104,9 +147,9 @@ func LoadConfig() (*ManagerConfig, error) {
 		var bcml BCMLSettings
 		if err := json.Unmarshal(data, &bcml); err == nil {
 			cfg.BCMLSetting = bcml
-			cfg.BaseGame = toLinuxPath(driveC, bcml.GameDir)
-			cfg.UpdatePath = toLinuxPath(driveC, bcml.UpdateDir)
-			cfg.DLCPath = toLinuxPath(driveC, bcml.DlcDir)
+			cfg.BaseGame = NormalizeGameDir(toLinuxPath(driveC, bcml.GameDir))
+			cfg.UpdatePath = NormalizeGameDir(toLinuxPath(driveC, bcml.UpdateDir))
+			cfg.DLCPath = NormalizeGameDir(toLinuxPath(driveC, bcml.DlcDir))
 		}
 	}
 
@@ -221,9 +264,9 @@ Special=%d
 }
 
 func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
-	c.BaseGame = strings.TrimSpace(baseGame)
-	c.UpdatePath = strings.TrimSpace(updatePath)
-	c.DLCPath = strings.TrimSpace(dlcPath)
+	c.BaseGame = NormalizeGameDir(baseGame)
+	c.UpdatePath = NormalizeGameDir(updatePath)
+	c.DLCPath = NormalizeGameDir(dlcPath)
 
 	gameFolder := filepath.Base(c.BaseGame)
 	if gameFolder == "" || gameFolder == "." {
@@ -303,10 +346,20 @@ func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 	if c.BaseGame == "" {
 		return false, "Ruta no configurada"
 	}
-	rpx := filepath.Join(c.BaseGame, "code/U-King.rpx")
-	content := filepath.Join(c.BaseGame, "content")
-	if fileExists(rpx) || dirExists(content) {
-		return true, "Valido (Base Game)"
+	norm := NormalizeGameDir(c.BaseGame)
+	rpx1 := filepath.Join(norm, "code/U-King.rpx")
+	rpx2 := filepath.Join(c.BaseGame, "code/U-King.rpx")
+	content1 := filepath.Join(norm, "content")
+	content2 := filepath.Join(c.BaseGame, "content")
+
+	if fileExists(rpx1) || fileExists(rpx2) {
+		return true, "Valido (Ejecutable U-King.rpx detectado)"
+	}
+	if dirExists(content1) || dirExists(content2) {
+		return true, "Valido (Carpeta content detectada)"
+	}
+	if dirExists(norm) || dirExists(c.BaseGame) {
+		return true, "Valido (Carpeta del juego detectada)"
 	}
 	return false, "No se encontro code/U-King.rpx ni carpeta content"
 }

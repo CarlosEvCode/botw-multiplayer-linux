@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/config"
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/network"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
@@ -24,6 +25,36 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Viewport.Height = msg.Height - 17
 		if m.Viewport.Height < 6 {
 			m.Viewport.Height = 6
+		}
+		inputW := msg.Width - 10
+		if inputW > 120 {
+			inputW = 120
+		} else if inputW < 40 {
+			inputW = 40
+		}
+		m.BaseInput.Width = inputW
+		m.UpdateInput.Width = inputW
+		m.DLCInput.Width = inputW
+		m.ServerPassIn.Width = 35
+		m.ServerDescIn.Width = 50
+
+	case PickedDirMsg:
+		if msg.Err == nil && msg.Path != "" {
+			cleanPath := config.NormalizeGameDir(msg.Path)
+			switch msg.Field {
+			case 0:
+				m.BaseInput.SetValue(cleanPath)
+			case 1:
+				m.UpdateInput.SetValue(cleanPath)
+			case 2:
+				m.DLCInput.SetValue(cleanPath)
+			}
+			err := m.Config.SavePaths(m.BaseInput.Value(), m.UpdateInput.Value(), m.DLCInput.Value())
+			if err != nil {
+				m.SetNotification(fmt.Sprintf("Error guardando ruta: %v", err), 3*time.Second)
+			} else {
+				m.SetNotification("Ruta seleccionada y aplicada correctamente!", 3*time.Second)
+			}
 		}
 
 	case TickMsg:
@@ -137,6 +168,21 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.PathFocusIdx = (m.PathFocusIdx + 2) % 3
 				m.updatePathFocus()
 				return m, nil
+			case "ctrl+o", "f2", "alt+o":
+				var title, initDir string
+				switch m.PathFocusIdx {
+				case 0:
+					title = "Selecciona Carpeta del Juego Base (Zelda BotW)"
+					initDir = m.BaseInput.Value()
+				case 1:
+					title = "Selecciona Carpeta de Update (v208)"
+					initDir = m.UpdateInput.Value()
+				case 2:
+					title = "Selecciona Carpeta de DLC (v80)"
+					initDir = m.DLCInput.Value()
+				}
+				m.SetNotification("Abriendo explorador de carpetas...", 2*time.Second)
+				return m, pickDirCmd(m.PathFocusIdx, title, initDir)
 			case "enter", "ctrl+s":
 				err := m.Config.SavePaths(m.BaseInput.Value(), m.UpdateInput.Value(), m.DLCInput.Value())
 				if err != nil {
@@ -321,4 +367,11 @@ func (m *Model) blurPathInputs() {
 	m.BaseInput.Blur()
 	m.UpdateInput.Blur()
 	m.DLCInput.Blur()
+}
+
+func pickDirCmd(field int, title, initial string) tea.Cmd {
+	return func() tea.Msg {
+		p, err := config.PickDirectory(title, initial)
+		return PickedDirMsg{Field: field, Path: p, Err: err}
+	}
 }
