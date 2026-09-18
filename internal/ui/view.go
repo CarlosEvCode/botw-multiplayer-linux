@@ -159,7 +159,16 @@ func (m Model) renderGamemodesTab(width int) string {
 
 	modeStr := fmt.Sprintf("%s (%d)", getSpecialModeName(m.Config.ServerCfg.SpecialMode), m.Config.ServerCfg.SpecialMode)
 
+	var statusBanner string
+	if m.Process.IsServerRunning() {
+		statusBanner = lipgloss.NewStyle().Foreground(ColorWarning).Bold(true).Render(">> SERVIDOR ACTIVO: Los cambios se aplicaran reiniciando el servidor al guardar.")
+	} else {
+		statusBanner = lipgloss.NewStyle().Foreground(ColorSuccess).Render(">> SERVIDOR DETENIDO: Configure sus reglas y presione [s] para iniciar.")
+	}
+
 	items := []string{
+		statusBanner,
+		"",
 		fmt.Sprintf("%s: %s", cur(0, "Modo de Juego Especial"), KeyStyle.Render(modeStr)),
 		"",
 		LabelStyle.Render("OPCIONES DE SINCRONIZACION:"),

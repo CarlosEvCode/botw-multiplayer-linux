@@ -278,7 +278,17 @@ func (m *Model) saveGamemodeSettings() {
 	if err != nil {
 		m.SetNotification(fmt.Sprintf("Error guardando ServerConfig: %v", err), 3*time.Second)
 	} else {
-		m.SetNotification("Configuracion de Gamemode y Servidor guardada!", 3*time.Second)
+		if m.Process.IsServerRunning() {
+			_ = m.Process.StopServer()
+			prefix := m.Config.PrefixDir
+			go func() {
+				time.Sleep(600 * time.Millisecond)
+				_ = m.Process.StartServer(prefix)
+			}()
+			m.SetNotification("Configuracion guardada! Reiniciando servidor con las nuevas reglas...", 3*time.Second)
+		} else {
+			m.SetNotification("Configuracion guardada! Lista para el inicio del servidor.", 3*time.Second)
+		}
 	}
 	m.CurrentTab = TabDashboard
 }
