@@ -25,8 +25,7 @@ func (m Model) View() string {
 	if m.Notification != "" {
 		notif := lipgloss.NewStyle().
 			Bold(true).
-			Foreground(ColorTriforceGold).
-			Background(ColorDarkBg).
+			Foreground(ColorHighlight).
 			Padding(0, 1).
 			Render(">> " + m.Notification)
 		sb.WriteString(notif + "\n")
@@ -124,7 +123,7 @@ func (m Model) renderDashboard(width int) string {
 
 	inputLine := ""
 	if m.InputFocused {
-		inputLine = lipgloss.NewStyle().Foreground(ColorSheikahBlue).Bold(true).Render("> ") + m.CmdInput.View()
+		inputLine = lipgloss.NewStyle().Foreground(ColorPrimary).Bold(true).Render("> ") + m.CmdInput.View()
 	} else {
 		inputLine = DescStyle.Render("[Presione 'i' para enviar comando al servidor]")
 	}

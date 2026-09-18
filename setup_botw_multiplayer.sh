@@ -106,6 +106,7 @@ ln -sfn "$GAME_PATH" "$DRIVE_C/Games/$GAME_FOLDER_NAME"
 SERVER_CONFIG="$DRIVE_C/MilkBarLauncher/DedicatedServer/ServerConfig.ini"
 if [ -f "$SERVER_CONFIG" ]; then
     sed -i 's/^IP=localhost/IP=127.0.0.1/g' "$SERVER_CONFIG"
+    sed -i 's/^DefaultGamemode=False/DefaultGamemode=True/g' "$SERVER_CONFIG"
 fi
 
 # 6. Copia de recursos de Roaming para BOTWM

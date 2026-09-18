@@ -5,30 +5,27 @@ import (
 )
 
 var (
-	// Palette
-	ColorZeldaGreen = lipgloss.Color("#75B855")
-	ColorSheikahBlue = lipgloss.Color("#3DB8FF")
-	ColorTriforceGold = lipgloss.Color("#E6B800")
-	ColorDarkBg     = lipgloss.Color("#1A1B26")
-	ColorPanelBg    = lipgloss.Color("#16161E")
-	ColorBorder     = lipgloss.Color("#3B4261")
-	ColorActiveTab  = lipgloss.Color("#7AA2F7")
-	ColorText       = lipgloss.Color("#C0CAF5")
-	ColorMuted      = lipgloss.Color("#565F89")
-	ColorSuccess    = lipgloss.Color("#9ECE6A")
-	ColorDanger     = lipgloss.Color("#F7768E")
-	ColorWarning    = lipgloss.Color("#E0AF68")
+	// Terminal Adaptive ANSI Colors (Inherits Kitty/Foot/Alacritty/Terminal Theme)
+	ColorPrimary   = lipgloss.Color("4")  // Blue / Accent
+	ColorHighlight = lipgloss.Color("3")  // Yellow / Gold
+	ColorSuccess   = lipgloss.Color("2")  // Green
+	ColorDanger    = lipgloss.Color("1")  // Red
+	ColorWarning   = lipgloss.Color("3")  // Yellow/Orange
+	ColorMuted     = lipgloss.Color("8")  // Bright Black / Gray
+	ColorBorder    = lipgloss.Color("8")  // Border
+	ColorFocus     = lipgloss.Color("6")  // Cyan / Active border
+	ColorText      = lipgloss.Color("7")  // Foreground Text
 
-	// Box Styles
+	// Box & Title Styles
 	TitleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(ColorTriforceGold).
+			Foreground(ColorHighlight).
 			Padding(0, 1)
 
 	TabActiveStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("#1A1B26")).
-			Background(ColorActiveTab).
+			Foreground(lipgloss.Color("0")).
+			Background(ColorPrimary).
 			Padding(0, 2)
 
 	TabInactiveStyle = lipgloss.NewStyle().
@@ -42,7 +39,7 @@ var (
 
 	ActiveBoxStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorSheikahBlue).
+			BorderForeground(ColorFocus).
 			Padding(0, 1)
 
 	// Status Badges
@@ -74,14 +71,14 @@ var (
 	// Text Highlights
 	LabelStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(ColorSheikahBlue)
+			Foreground(ColorPrimary)
 
 	ValueStyle = lipgloss.NewStyle().
 			Foreground(ColorText)
 
 	KeyStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(ColorTriforceGold)
+			Foreground(ColorHighlight)
 
 	DescStyle = lipgloss.NewStyle().
 			Foreground(ColorMuted)

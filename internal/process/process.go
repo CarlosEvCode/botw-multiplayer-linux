@@ -1,12 +1,12 @@
 package process
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -137,10 +137,33 @@ func (p *ProcessManager) StartServer(prefixDir string) error {
 }
 
 func (p *ProcessManager) streamPipe(r io.Reader) {
-	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
-		text := scanner.Text()
-		p.AddLog("%s", text)
+	buf := make([]byte, 1024)
+	var lineAcc string
+
+	for {
+		n, err := r.Read(buf)
+		if n > 0 {
+			chunk := string(buf[:n])
+			lineAcc += chunk
+			for strings.Contains(lineAcc, "\n") {
+				parts := strings.SplitN(lineAcc, "\n", 2)
+				trimmed := strings.TrimRight(parts[0], "\r")
+				if trimmed != "" {
+					p.AddLog("%s", trimmed)
+				}
+				lineAcc = parts[1]
+			}
+			if len(lineAcc) > 0 && (strings.HasSuffix(lineAcc, ": ") || strings.HasSuffix(lineAcc, "? ")) {
+				p.AddLog("%s", strings.TrimRight(lineAcc, "\r"))
+				lineAcc = ""
+			}
+		}
+		if err != nil {
+			if lineAcc != "" {
+				p.AddLog("%s", strings.TrimRight(lineAcc, "\r\n"))
+			}
+			break
+		}
 	}
 }
 
