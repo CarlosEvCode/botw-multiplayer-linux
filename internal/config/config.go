@@ -1,10 +1,12 @@
 package config
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 )
 
@@ -37,6 +39,21 @@ type BCMLSettings struct {
 	LastVersion    string `json:"last_version"`
 }
 
+type ServerConfigData struct {
+	IP           string
+	Port         string
+	Password     string
+	Description  string
+	EnemySync    bool
+	QuestSync    bool
+	KorokSync    bool
+	TowerSync    bool
+	ShrineSync   bool
+	LocationSync bool
+	DungeonSync  bool
+	SpecialMode  int // 0 = Standard Co-op, 1 = Hunter vs Speedrunner, 2 = DeathSwap
+}
+
 type ManagerConfig struct {
 	PrefixDir   string
 	DriveC      string
@@ -47,6 +64,7 @@ type ManagerConfig struct {
 	DLCPath     string
 	User        string
 	BCMLSetting BCMLSettings
+	ServerCfg   ServerConfigData
 }
 
 func GetDefaultPrefix() string {
@@ -72,6 +90,12 @@ func LoadConfig() (*ManagerConfig, error) {
 		CemuDir:    cemuDir,
 		MilkBarDir: milkBarDir,
 		User:       user,
+		ServerCfg: ServerConfigData{
+			IP:          "127.0.0.1",
+			Port:        "5050",
+			Description: "Explore Hyrule with Friends!",
+			SpecialMode: 0,
+		},
 	}
 
 	// Read BCML settings.json if exists
@@ -86,7 +110,114 @@ func LoadConfig() (*ManagerConfig, error) {
 		}
 	}
 
+	// Read ServerConfig.ini
+	cfg.LoadServerConfig()
+
 	return cfg, nil
+}
+
+func (c *ManagerConfig) LoadServerConfig() {
+	iniPath := filepath.Join(c.MilkBarDir, "DedicatedServer/ServerConfig.ini")
+	f, err := os.Open(iniPath)
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(line, "#") || strings.HasPrefix(line, ";") || line == "" {
+			continue
+		}
+		parts := strings.SplitN(line, "=", 2)
+		if len(parts) != 2 {
+			continue
+		}
+		k := strings.TrimSpace(parts[0])
+		v := strings.TrimSpace(parts[1])
+
+		switch k {
+		case "IP":
+			c.ServerCfg.IP = v
+		case "Port":
+			c.ServerCfg.Port = v
+		case "Password":
+			c.ServerCfg.Password = v
+		case "Description":
+			c.ServerCfg.Description = v
+		case "EnemySync":
+			c.ServerCfg.EnemySync = parseBool(v)
+		case "QuestSync":
+			c.ServerCfg.QuestSync = parseBool(v)
+		case "KorokSync":
+			c.ServerCfg.KorokSync = parseBool(v)
+		case "TowerSync":
+			c.ServerCfg.TowerSync = parseBool(v)
+		case "ShrineSync":
+			c.ServerCfg.ShrineSync = parseBool(v)
+		case "LocationSync":
+			c.ServerCfg.LocationSync = parseBool(v)
+		case "DungeonSync":
+			c.ServerCfg.DungeonSync = parseBool(v)
+		case "Special":
+			if val, err := strconv.Atoi(v); err == nil {
+				c.ServerCfg.SpecialMode = val
+			}
+		}
+	}
+}
+
+func (c *ManagerConfig) SaveServerConfig(sc ServerConfigData) error {
+	c.ServerCfg = sc
+	if c.ServerCfg.IP == "" {
+		c.ServerCfg.IP = "127.0.0.1"
+	}
+	if c.ServerCfg.Port == "" {
+		c.ServerCfg.Port = "5050"
+	}
+
+	iniPath := filepath.Join(c.MilkBarDir, "DedicatedServer/ServerConfig.ini")
+	_ = os.MkdirAll(filepath.Dir(iniPath), 0755)
+
+	content := fmt.Sprintf(`[Connection]
+IP=%s
+Port=%s
+Password=%s
+
+[ServerInformation]
+Description=%s
+
+[Gamemode]
+DefaultGamemode=True
+
+[DefaultGamemode]
+Name=Custom
+EnemySync=%t
+QuestSync=%t
+KorokSync=%t
+TowerSync=%t
+ShrineSync=%t
+LocationSync=%t
+DungeonSync=%t
+# 0 for no special gamemode, 1 for HunterVsSpeedrunner, 2 for DeathSwap
+Special=%d
+`,
+		c.ServerCfg.IP,
+		c.ServerCfg.Port,
+		c.ServerCfg.Password,
+		c.ServerCfg.Description,
+		c.ServerCfg.EnemySync,
+		c.ServerCfg.QuestSync,
+		c.ServerCfg.KorokSync,
+		c.ServerCfg.TowerSync,
+		c.ServerCfg.ShrineSync,
+		c.ServerCfg.LocationSync,
+		c.ServerCfg.DungeonSync,
+		c.ServerCfg.SpecialMode,
+	)
+
+	return os.WriteFile(iniPath, []byte(content), 0644)
 }
 
 func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
@@ -126,19 +257,19 @@ func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
 
 	// Prepare BCML Settings
 	c.BCMLSetting = BCMLSettings{
-		CemuDir:        "C:/cemu_1.26.2",
-		GameDir:        fmt.Sprintf("C:/Games/%s/content", gameFolder),
-		UpdateDir:      "C:/cemu_1.26.2/mlc01/usr/title/0005000e/101c9400/content",
-		DlcDir:         "C:/cemu_1.26.2/mlc01/usr/title/0005000c/101c9400/content/0010",
-		StoreDir:       fmt.Sprintf("C:/users/%s/AppData/Local/bcml", c.User),
-		ExportDir:      "C:/cemu_1.26.2/graphicPacks/BreathOfTheWild_BCML",
-		Lang:           "USen",
-		WiiU:           true,
-		NoHardlinks:    true,
-		Loaded:         true,
-		Changelog:      true,
-		AutoGB:         true,
-		LastVersion:    "3.10.8",
+		CemuDir:     "C:/cemu_1.26.2",
+		GameDir:     fmt.Sprintf("C:/Games/%s/content", gameFolder),
+		UpdateDir:   "C:/cemu_1.26.2/mlc01/usr/title/0005000e/101c9400/content",
+		DlcDir:      "C:/cemu_1.26.2/mlc01/usr/title/0005000c/101c9400/content/0010",
+		StoreDir:    fmt.Sprintf("C:/users/%s/AppData/Local/bcml", c.User),
+		ExportDir:   "C:/cemu_1.26.2/graphicPacks/BreathOfTheWild_BCML",
+		Lang:        "USen",
+		WiiU:        true,
+		NoHardlinks: true,
+		Loaded:      true,
+		Changelog:   true,
+		AutoGB:      true,
+		LastVersion: "3.10.8",
 	}
 
 	data, err := json.MarshalIndent(c.BCMLSetting, "", "  ")
@@ -224,4 +355,9 @@ func fileExists(p string) bool {
 func dirExists(p string) bool {
 	st, err := os.Stat(p)
 	return err == nil && st.IsDir()
+}
+
+func parseBool(s string) bool {
+	s = strings.ToLower(strings.TrimSpace(s))
+	return s == "true" || s == "1" || s == "yes"
 }

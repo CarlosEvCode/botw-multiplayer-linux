@@ -39,7 +39,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, tickEvery(1*time.Second))
 
 	case tea.KeyMsg:
-		// When typing in text inputs
+		// When typing in command input on dashboard
 		if m.InputFocused {
 			switch msg.String() {
 			case "esc":
@@ -58,6 +58,71 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
+		// When in Gamemodes Tab
+		if m.CurrentTab == TabGamemodes {
+			if m.GamemodeCursor == 8 { // Password input
+				switch msg.String() {
+				case "esc", "down", "tab":
+					m.ServerPassIn.Blur()
+					m.GamemodeCursor = (m.GamemodeCursor + 1) % 10
+					m.updateGamemodeFocus()
+					return m, nil
+				case "up", "shift+tab":
+					m.ServerPassIn.Blur()
+					m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
+					m.updateGamemodeFocus()
+					return m, nil
+				case "enter", "ctrl+s":
+					m.saveGamemodeSettings()
+					return m, nil
+				}
+				m.ServerPassIn, cmd = m.ServerPassIn.Update(msg)
+				return m, cmd
+			} else if m.GamemodeCursor == 9 { // Description input
+				switch msg.String() {
+				case "esc", "down", "tab":
+					m.ServerDescIn.Blur()
+					m.GamemodeCursor = (m.GamemodeCursor + 1) % 10
+					m.updateGamemodeFocus()
+					return m, nil
+				case "up", "shift+tab":
+					m.ServerDescIn.Blur()
+					m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
+					m.updateGamemodeFocus()
+					return m, nil
+				case "enter", "ctrl+s":
+					m.saveGamemodeSettings()
+					return m, nil
+				}
+				m.ServerDescIn, cmd = m.ServerDescIn.Update(msg)
+				return m, cmd
+			}
+
+			switch msg.String() {
+			case "esc":
+				m.CurrentTab = TabDashboard
+				return m, nil
+			case "down", "j":
+				m.GamemodeCursor = (m.GamemodeCursor + 1) % 10
+				m.updateGamemodeFocus()
+				return m, nil
+			case "up", "k":
+				m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
+				m.updateGamemodeFocus()
+				return m, nil
+			case " ", "enter":
+				m.toggleGamemodeOption()
+				return m, nil
+			case "ctrl+s", "s":
+				m.saveGamemodeSettings()
+				return m, nil
+			case "tab":
+				m.CurrentTab = (m.CurrentTab + 1) % 4
+				return m, nil
+			}
+		}
+
+		// When in Paths Tab
 		if m.CurrentTab == TabPaths {
 			switch msg.String() {
 			case "esc":
@@ -101,10 +166,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "tab":
-			m.CurrentTab = (m.CurrentTab + 1) % 3
+			m.CurrentTab = (m.CurrentTab + 1) % 4
 			if m.CurrentTab == TabPaths {
 				m.PathFocusIdx = 0
 				m.updatePathFocus()
+			} else if m.CurrentTab == TabGamemodes {
+				m.updateGamemodeFocus()
 			}
 			return m, nil
 
@@ -150,18 +217,24 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "i", "/":
-			if m.CurrentTab == TabDashboard {
-				m.InputFocused = true
-				m.CmdInput.Focus()
-				return m, textinput.Blink
-			}
+		case "g":
+			m.CurrentTab = TabGamemodes
+			m.GamemodeCursor = 0
+			m.updateGamemodeFocus()
+			return m, nil
 
 		case "r":
 			m.CurrentTab = TabPaths
 			m.PathFocusIdx = 0
 			m.updatePathFocus()
 			return m, nil
+
+		case "i", "/":
+			if m.CurrentTab == TabDashboard {
+				m.InputFocused = true
+				m.CmdInput.Focus()
+				return m, textinput.Blink
+			}
 		}
 	}
 
@@ -174,6 +247,50 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *Model) SetNotification(text string, dur time.Duration) {
 	m.Notification = text
 	m.NotifyTimeout = time.Now().Add(dur)
+}
+
+func (m *Model) toggleGamemodeOption() {
+	switch m.GamemodeCursor {
+	case 0:
+		m.Config.ServerCfg.SpecialMode = (m.Config.ServerCfg.SpecialMode + 1) % 3
+	case 1:
+		m.Config.ServerCfg.QuestSync = !m.Config.ServerCfg.QuestSync
+	case 2:
+		m.Config.ServerCfg.ShrineSync = !m.Config.ServerCfg.ShrineSync
+	case 3:
+		m.Config.ServerCfg.TowerSync = !m.Config.ServerCfg.TowerSync
+	case 4:
+		m.Config.ServerCfg.KorokSync = !m.Config.ServerCfg.KorokSync
+	case 5:
+		m.Config.ServerCfg.EnemySync = !m.Config.ServerCfg.EnemySync
+	case 6:
+		m.Config.ServerCfg.DungeonSync = !m.Config.ServerCfg.DungeonSync
+	case 7:
+		m.Config.ServerCfg.LocationSync = !m.Config.ServerCfg.LocationSync
+	}
+	_ = m.Config.SaveServerConfig(m.Config.ServerCfg)
+}
+
+func (m *Model) saveGamemodeSettings() {
+	m.Config.ServerCfg.Password = strings.TrimSpace(m.ServerPassIn.Value())
+	m.Config.ServerCfg.Description = strings.TrimSpace(m.ServerDescIn.Value())
+	err := m.Config.SaveServerConfig(m.Config.ServerCfg)
+	if err != nil {
+		m.SetNotification(fmt.Sprintf("Error guardando ServerConfig: %v", err), 3*time.Second)
+	} else {
+		m.SetNotification("Configuracion de Gamemode y Servidor guardada!", 3*time.Second)
+	}
+	m.CurrentTab = TabDashboard
+}
+
+func (m *Model) updateGamemodeFocus() {
+	m.ServerPassIn.Blur()
+	m.ServerDescIn.Blur()
+	if m.GamemodeCursor == 8 {
+		m.ServerPassIn.Focus()
+	} else if m.GamemodeCursor == 9 {
+		m.ServerDescIn.Focus()
+	}
 }
 
 func (m *Model) updatePathFocus() {

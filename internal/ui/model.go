@@ -15,6 +15,7 @@ type Tab int
 
 const (
 	TabDashboard Tab = iota
+	TabGamemodes
 	TabPaths
 	TabNetwork
 )
@@ -32,6 +33,11 @@ type Model struct {
 	Viewport     viewport.Model
 	CmdInput     textinput.Model
 	InputFocused bool
+
+	// Gamemodes cursor
+	GamemodeCursor int
+	ServerPassIn   textinput.Model
+	ServerDescIn   textinput.Model
 
 	// Paths edit inputs
 	BaseInput     textinput.Model
@@ -59,19 +65,30 @@ func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
 	dlcIn.Placeholder = "/ruta/a/DLC v80 (opcional si ya esta en Cemu)"
 	dlcIn.SetValue(cfg.DLCPath)
 
+	passIn := textinput.New()
+	passIn.Placeholder = "Vacio si no requiere clave"
+	passIn.SetValue(cfg.ServerCfg.Password)
+
+	descIn := textinput.New()
+	descIn.Placeholder = "Descripcion del servidor"
+	descIn.SetValue(cfg.ServerCfg.Description)
+
 	vp := viewport.New(80, 14)
 	vp.SetContent("Iniciando consola de logs...")
 
 	m := Model{
-		Config:      cfg,
-		Process:     proc,
-		Network:     network.GetNetworkInfo(),
-		CurrentTab:  TabDashboard,
-		Viewport:    vp,
-		CmdInput:    cmdIn,
-		BaseInput:   baseIn,
-		UpdateInput: upIn,
-		DLCInput:    dlcIn,
+		Config:         cfg,
+		Process:        proc,
+		Network:        network.GetNetworkInfo(),
+		CurrentTab:     TabDashboard,
+		Viewport:       vp,
+		CmdInput:       cmdIn,
+		BaseInput:      baseIn,
+		UpdateInput:    upIn,
+		DLCInput:       dlcIn,
+		ServerPassIn:   passIn,
+		ServerDescIn:   descIn,
+		GamemodeCursor: 0,
 	}
 
 	return m

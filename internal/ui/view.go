@@ -35,6 +35,8 @@ func (m Model) View() string {
 	switch m.CurrentTab {
 	case TabDashboard:
 		sb.WriteString(m.renderDashboard(width))
+	case TabGamemodes:
+		sb.WriteString(m.renderGamemodesTab(width))
 	case TabPaths:
 		sb.WriteString(m.renderPathsTab(width))
 	case TabNetwork:
@@ -50,7 +52,7 @@ func (m Model) View() string {
 func (m Model) renderTabs() string {
 	var tabs []string
 
-	tabNames := []string{"1. Dashboard", "2. Rutas & DLC", "3. Red & Conectividad"}
+	tabNames := []string{"1. Dashboard", "2. Gamemodes", "3. Rutas & DLC", "4. Red"}
 	for i, name := range tabNames {
 		if Tab(i) == m.CurrentTab {
 			tabs = append(tabs, TabActiveStyle.Render(name))
@@ -90,11 +92,13 @@ func (m Model) renderDashboard(width int) string {
 		cemuStatus = StatusStopped.String()
 	}
 
+	modeName := getSpecialModeName(m.Config.ServerCfg.SpecialMode)
 	srvContent := fmt.Sprintf(
-		"%s %-20s %s\n%s %-20s %s\n%s %-20s %s",
+		"%s %-18s %s\n%s %-18s %s\n%s %-18s %s\n\n%-15s %s",
 		LabelStyle.Render("●"), "Servidor Dedicado", srvStatus,
 		LabelStyle.Render("●"), "Milk Bar Launcher", milkStatus,
 		LabelStyle.Render("●"), "Cemu 1.26.2", cemuStatus,
+		LabelStyle.Render("Modo Servidor:"), ValueStyle.Render(modeName),
 	)
 	servicesBox := BoxStyle.Width(halfWidth).Render(
 		TitleStyle.Render("ESTADO DE SERVICIOS") + "\n" + srvContent,
@@ -106,10 +110,11 @@ func (m Model) renderDashboard(width int) string {
 		tsIP = "No detectado"
 	}
 	netContent := fmt.Sprintf(
-		"%-15s %s\n%-15s %s\n%-15s %s",
+		"%-15s %s\n%-15s %s\n%-15s %s\n\n%-15s %s",
 		LabelStyle.Render("IP Tailscale:"), ValueStyle.Render(tsIP),
 		LabelStyle.Render("IP Local LAN:"), ValueStyle.Render(m.Network.LocalIP),
-		LabelStyle.Render("Puerto:"), ValueStyle.Render("5050 (UDP/TCP)"),
+		LabelStyle.Render("Puerto:"), ValueStyle.Render(m.Config.ServerCfg.Port+" (UDP/TCP)"),
+		LabelStyle.Render("Clave Servidor:"), ValueStyle.Render(nonEmpty(m.Config.ServerCfg.Password, "Sin clave")),
 	)
 	networkBox := BoxStyle.Width(halfWidth).Render(
 		TitleStyle.Render("CONECTIVIDAD") + "\n" + netContent,
@@ -133,6 +138,49 @@ func (m Model) renderDashboard(width int) string {
 	)
 
 	return topRow + "\n" + consoleBox
+}
+
+func (m Model) renderGamemodesTab(width int) string {
+	boxWidth := width - 4
+
+	cur := func(idx int, text string) string {
+		if m.GamemodeCursor == idx {
+			return lipgloss.NewStyle().Bold(true).Foreground(ColorHighlight).Render("▶ " + text)
+		}
+		return "  " + text
+	}
+
+	chk := func(b bool) string {
+		if b {
+			return lipgloss.NewStyle().Foreground(ColorSuccess).Bold(true).Render("[X]")
+		}
+		return lipgloss.NewStyle().Foreground(ColorMuted).Render("[ ]")
+	}
+
+	modeStr := fmt.Sprintf("%s (%d)", getSpecialModeName(m.Config.ServerCfg.SpecialMode), m.Config.ServerCfg.SpecialMode)
+
+	items := []string{
+		fmt.Sprintf("%s: %s", cur(0, "Modo de Juego Especial"), KeyStyle.Render(modeStr)),
+		"",
+		LabelStyle.Render("OPCIONES DE SINCRONIZACION:"),
+		fmt.Sprintf("%s %s Sincronizar Misiones (QuestSync)", cur(1, chk(m.Config.ServerCfg.QuestSync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Santuarios (ShrineSync)", cur(2, chk(m.Config.ServerCfg.ShrineSync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Torres (TowerSync)", cur(3, chk(m.Config.ServerCfg.TowerSync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Kologs (KorokSync)", cur(4, chk(m.Config.ServerCfg.KorokSync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Enemigos (EnemySync)", cur(5, chk(m.Config.ServerCfg.EnemySync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Mazmorras (DungeonSync)", cur(6, chk(m.Config.ServerCfg.DungeonSync)), ""),
+		fmt.Sprintf("%s %s Sincronizar Ubicaciones (LocationSync)", cur(7, chk(m.Config.ServerCfg.LocationSync)), ""),
+		"",
+		LabelStyle.Render("PARAMETROS DEL SERVIDOR:"),
+		fmt.Sprintf("%s: %s", cur(8, "Contrasena"), m.ServerPassIn.View()),
+		fmt.Sprintf("%s: %s", cur(9, "Descripcion"), m.ServerDescIn.View()),
+		"",
+		DescStyle.Render("[Espacio/Enter: Alternar opcion]  [s / Enter en inputs: Guardar]  [Esc: Volver]"),
+	}
+
+	return BoxStyle.Width(boxWidth).Render(
+		TitleStyle.Render("CONFIGURACION DE GAMEMODES Y SERVIDOR DEDICADO") + "\n\n" + strings.Join(items, "\n"),
+	)
 }
 
 func (m Model) renderPathsTab(width int) string {
@@ -195,7 +243,7 @@ func (m Model) renderNetworkTab(width int) string {
 			"%s\n"+
 			"  - Host (Servidor): Conecta localmente a %s en el puerto %s\n"+
 			"  - Clientes remotos: Ingresan tu IP de Tailscale (%s) en Milk Bar Launcher\n"+
-			"  - Puerto por defecto: 5050 (TCP/UDP)\n\n"+
+			"  - Puerto por defecto: %s (TCP/UDP)\n\n"+
 			"%s",
 		LabelStyle.Render("INTERFACES DETECTADAS:"),
 		"Tailscale VPN:", ValueStyle.Render(nonEmpty(m.Network.TailscaleIP, "Inactivo")), tsBadge,
@@ -203,8 +251,9 @@ func (m Model) renderNetworkTab(width int) string {
 		"ZeroTier VPN:", ValueStyle.Render(nonEmpty(m.Network.ZeroTierIP, "Inactivo")), ztBadge,
 
 		LabelStyle.Render("INSTRUCCIONES DE CONEXION MULTIJUGADOR:"),
-		KeyStyle.Render("127.0.0.1"), KeyStyle.Render("5050"),
+		KeyStyle.Render("127.0.0.1"), KeyStyle.Render(m.Config.ServerCfg.Port),
 		KeyStyle.Render(nonEmpty(m.Network.TailscaleIP, m.Network.LocalIP)),
+		KeyStyle.Render(m.Config.ServerCfg.Port),
 
 		DescStyle.Render("[t: Copiar IP al portapapeles]  [Tab: Siguiente pestana]"),
 	)
@@ -219,14 +268,26 @@ func (m Model) renderFooter(width int) string {
 		KeyStyle.Render("[s]") + " " + DescStyle.Render("Server"),
 		KeyStyle.Render("[m]") + " " + DescStyle.Render("MilkBar"),
 		KeyStyle.Render("[c]") + " " + DescStyle.Render("Cemu"),
-		KeyStyle.Render("[t]") + " " + DescStyle.Render("Copiar IP"),
+		KeyStyle.Render("[g]") + " " + DescStyle.Render("Gamemodes"),
 		KeyStyle.Render("[r]") + " " + DescStyle.Render("Rutas"),
+		KeyStyle.Render("[t]") + " " + DescStyle.Render("Copiar IP"),
 		KeyStyle.Render("[i]") + " " + DescStyle.Render("Comando"),
 		KeyStyle.Render("[Tab]") + " " + DescStyle.Render("Pestana"),
 		KeyStyle.Render("[q]") + " " + DescStyle.Render("Salir"),
 	}
 
 	return lipgloss.JoinHorizontal(lipgloss.Top, strings.Join(keys, "  "))
+}
+
+func getSpecialModeName(code int) string {
+	switch code {
+	case 1:
+		return "Hunter vs Speedrunner"
+	case 2:
+		return "DeathSwap"
+	default:
+		return "Cooperativo Estandar (Libre)"
+	}
 }
 
 func nonEmpty(s, def string) string {
