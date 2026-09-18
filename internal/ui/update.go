@@ -178,7 +178,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.PathFocusIdx = (m.PathFocusIdx + 2) % 3
 				m.updatePathFocus()
 				return m, nil
-			case "ctrl+o", "f2", "alt+o":
+			case "f", "o", "ctrl+o", "f2", "alt+o":
 				var title, initDir string
 				switch m.PathFocusIdx {
 				case 0:

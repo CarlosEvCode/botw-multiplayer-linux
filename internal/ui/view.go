@@ -220,7 +220,7 @@ func (m Model) renderPathsTab(width int) string {
 		if m.PathFocusIdx == idx {
 			prefix = lipgloss.NewStyle().Bold(true).Foreground(ColorHighlight).Render("▶ ")
 		}
-		return fmt.Sprintf("%s%s %s  %s", prefix, LabelStyle.Render(title), badge(ok), KeyStyle.Render("[Ctrl+O / F2: Explorar]"))
+		return fmt.Sprintf("%s%s %s  %s", prefix, LabelStyle.Render(title), badge(ok), KeyStyle.Render("[f: Explorar]"))
 	}
 
 	content := fmt.Sprintf(
@@ -240,7 +240,7 @@ func (m Model) renderPathsTab(width int) string {
 		m.DLCInput.View(),
 		DescStyle.Render("Estado:"), ValueStyle.Render(dlcMsg),
 
-		DescStyle.Render("[Tab/Flechas: Cambiar campo]  [Ctrl+O / F2: Abrir Explorador GUI]  [Enter: Guardar]  [Esc: Volver]"),
+		DescStyle.Render("[Tab: Pestana]  [↓/↑: Cambiar campo]  [f: Abrir Explorador]  [Enter: Guardar y Aplicar]  [Esc: Volver]"),
 	)
 
 	return BoxStyle.Width(boxWidth).Render(
