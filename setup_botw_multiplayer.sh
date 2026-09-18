@@ -199,11 +199,48 @@ cd "\$WINEPREFIX/drive_c/cemu_1.26.2" || exit 1
 wine "\$WINEPREFIX/drive_c/cemu_1.26.2/Cemu.exe"
 EOF
 
+# 10. Compilacion / Instalacion de TUI Manager (Go)
+if command -v go >/dev/null 2>&1 && [ -f "$SCRIPT_DIR/main.go" ]; then
+    echo "[INFO] Compilando TUI Manager (botw-manager)..."
+    (cd "$SCRIPT_DIR" && go build -o "$LAUNCHER_DIR/botw-manager" .) || true
+elif [ -f "$SCRIPT_DIR/botw-manager" ]; then
+    cp "$SCRIPT_DIR/botw-manager" "$LAUNCHER_DIR/botw-manager"
+fi
+
+mkdir -p "$USER_HOME/.local/bin"
+if [ -f "$LAUNCHER_DIR/botw-manager" ]; then
+    chmod +x "$LAUNCHER_DIR/botw-manager"
+    cp -f "$LAUNCHER_DIR/botw-manager" "$USER_HOME/.local/bin/botw-manager"
+fi
+
+cat <<EOF > "$LAUNCHER_DIR/0_manager_tui.sh"
+#!/usr/bin/env bash
+if [ -f "$LAUNCHER_DIR/botw-manager" ]; then
+    exec "$LAUNCHER_DIR/botw-manager"
+elif command -v botw-manager >/dev/null 2>&1; then
+    exec botw-manager
+else
+    echo "[ERROR] No se encontro el binario botw-manager."
+    exit 1
+fi
+EOF
+
 chmod +x "$LAUNCHER_DIR"/*.sh
 
-# 10. Creacion de entradas de escritorio (.desktop)
+# 11. Creacion de entradas de escritorio (.desktop)
 DESKTOP_DIR="$USER_HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
+
+cat <<EOF > "$DESKTOP_DIR/zelda-botw-manager.desktop"
+[Desktop Entry]
+Name=Zelda BotW Multiplayer Manager (TUI)
+Comment=Administrador TUI para The Legend of Zelda: Breath of the Wild Multiplayer
+Exec=foot $LAUNCHER_DIR/0_manager_tui.sh
+Icon=utilities-terminal
+Terminal=true
+Type=Application
+Categories=Game;
+EOF
 
 cat <<EOF > "$DESKTOP_DIR/zelda-botw-milkbar.desktop"
 [Desktop Entry]
@@ -240,5 +277,6 @@ EOF
 
 echo "========================================================================"
 echo "[SUCCESS] Instalacion completada exitosamente."
+echo "Administrador TUI disponible: $LAUNCHER_DIR/botw-manager"
 echo "Scripts de ejecucion generados en: $LAUNCHER_DIR"
 echo "========================================================================"

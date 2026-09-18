@@ -104,7 +104,24 @@ El script realiza de forma automatizada:
 
 ## 5. Guía de Uso y Conexión
 
-Una vez completada la instalación, los scripts de control residen en `~/Zelda_BotW_Multiplayer/`:
+### Opción A: Administrador TUI Interactivo (Recomendado)
+Puede administrar el servidor, el cliente, las rutas de juego/DLC y la red desde una interfaz de terminal interactiva:
+```bash
+botw-manager
+# o: ~/Zelda_BotW_Multiplayer/0_manager_tui.sh
+```
+* **Atajos de teclado principales:**
+  * `[s]` Iniciar / Detener Servidor Dedicado
+  * `[m]` Lanzar Milk Bar Launcher
+  * `[c]` Lanzar Cemu 1.26.2
+  * `[t]` Copiar IP de Tailscale / Local al portapapeles
+  * `[r]` Pestaña de configuración de Rutas del Juego, Update y DLC
+  * `[i]` Enviar comandos interactivos a la consola del servidor
+  * `[Tab]` Cambiar de pestaña / vista
+  * `[q]` Salir del administrador
+
+### Opción B: Scripts Independientes
+También dispone de scripts individuales de control en `~/Zelda_BotW_Multiplayer/`:
 
 1. **Iniciar Servidor Dedicado (solo el anfitrión / Host):**
    ```bash

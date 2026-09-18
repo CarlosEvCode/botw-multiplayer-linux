@@ -104,7 +104,24 @@ The script performs the following tasks automatically:
 
 ## 5. Running and Connecting
 
-After installation, control scripts are available in `~/Zelda_BotW_Multiplayer/`:
+### Option A: Interactive TUI Manager (Recommended)
+You can manage the server, client, routes, and network in a single unified terminal UI:
+```bash
+botw-manager
+# or: ~/Zelda_BotW_Multiplayer/0_manager_tui.sh
+```
+* **Keybindings:**
+  * `[s]` Start/Stop Dedicated Server
+  * `[m]` Launch Milk Bar Launcher
+  * `[c]` Launch Cemu 1.26.2
+  * `[t]` Copy Tailscale / Local IP to clipboard
+  * `[r]` Game paths, Update & DLC configuration tab
+  * `[i]` Send console command to the dedicated server
+  * `[Tab]` Switch views / tabs
+  * `[q]` Quit
+
+### Option B: Standalone Scripts
+Individual control scripts are also available in `~/Zelda_BotW_Multiplayer/`:
 
 1. **Start Dedicated Server (Host only):**
    ```bash
