@@ -256,11 +256,38 @@ chmod +x "$LAUNCHER_DIR"/*.sh
 DESKTOP_DIR="$USER_HOME/.local/share/applications"
 mkdir -p "$DESKTOP_DIR"
 
+case "$TERMINAL_BIN" in
+    foot)
+        EXEC_CMD="foot -T \"Zelda BotW Multiplayer Manager\" $USER_HOME/.local/bin/botw-manager"
+        ;;
+    kitty)
+        EXEC_CMD="kitty -T \"Zelda BotW Multiplayer Manager\" $USER_HOME/.local/bin/botw-manager"
+        ;;
+    ghostty)
+        EXEC_CMD="ghostty --title=\"Zelda BotW Multiplayer Manager\" -e $USER_HOME/.local/bin/botw-manager"
+        ;;
+    alacritty)
+        EXEC_CMD="alacritty -T \"Zelda BotW Multiplayer Manager\" -e $USER_HOME/.local/bin/botw-manager"
+        ;;
+    konsole)
+        EXEC_CMD="konsole -p tabtitle=\"Zelda BotW Multiplayer Manager\" -e $USER_HOME/.local/bin/botw-manager"
+        ;;
+    gnome-terminal)
+        EXEC_CMD="gnome-terminal --title=\"Zelda BotW Multiplayer Manager\" -- $USER_HOME/.local/bin/botw-manager"
+        ;;
+    xfce4-terminal)
+        EXEC_CMD="xfce4-terminal --title=\"Zelda BotW Multiplayer Manager\" -e $USER_HOME/.local/bin/botw-manager"
+        ;;
+    *)
+        EXEC_CMD="$TERMINAL_BIN -e $USER_HOME/.local/bin/botw-manager"
+        ;;
+esac
+
 cat <<EOF > "$DESKTOP_DIR/zelda-botw-manager.desktop"
 [Desktop Entry]
 Name=Zelda BotW Multiplayer Manager
 Comment=Interactive TUI Manager for Zelda BotW Multiplayer on Linux
-Exec=$TERMINAL_BIN -e $USER_HOME/.local/bin/botw-manager
+Exec=$EXEC_CMD
 Icon=utilities-terminal
 Terminal=false
 Type=Application
