@@ -147,9 +147,26 @@ func LoadConfig() (*ManagerConfig, error) {
 		var bcml BCMLSettings
 		if err := json.Unmarshal(data, &bcml); err == nil {
 			cfg.BCMLSetting = bcml
-			cfg.BaseGame = NormalizeGameDir(toLinuxPath(driveC, bcml.GameDir))
-			cfg.UpdatePath = NormalizeGameDir(toLinuxPath(driveC, bcml.UpdateDir))
-			cfg.DLCPath = NormalizeGameDir(toLinuxPath(driveC, bcml.DlcDir))
+			rawBase := NormalizeGameDir(toLinuxPath(driveC, bcml.GameDir))
+			if realPath, err := filepath.EvalSymlinks(rawBase); err == nil {
+				cfg.BaseGame = realPath
+			} else {
+				cfg.BaseGame = rawBase
+			}
+
+			rawUp := NormalizeGameDir(toLinuxPath(driveC, bcml.UpdateDir))
+			if realUp, err := filepath.EvalSymlinks(rawUp); err == nil {
+				cfg.UpdatePath = realUp
+			} else {
+				cfg.UpdatePath = rawUp
+			}
+
+			rawDlc := NormalizeGameDir(toLinuxPath(driveC, bcml.DlcDir))
+			if realDlc, err := filepath.EvalSymlinks(rawDlc); err == nil {
+				cfg.DLCPath = realDlc
+			} else {
+				cfg.DLCPath = rawDlc
+			}
 		}
 	}
 
@@ -278,24 +295,30 @@ func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
 	_ = os.MkdirAll(gamesDir, 0755)
 	if c.BaseGame != "" {
 		targetLink := filepath.Join(gamesDir, gameFolder)
-		_ = os.Remove(targetLink)
-		_ = os.Symlink(c.BaseGame, targetLink)
+		if filepath.Clean(c.BaseGame) != filepath.Clean(targetLink) {
+			_ = os.Remove(targetLink)
+			_ = os.Symlink(c.BaseGame, targetLink)
+		}
 	}
 
 	// Handle Update symlink if provided
 	if c.UpdatePath != "" {
 		updateDst := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000e/101c9400")
-		_ = os.MkdirAll(filepath.Dir(updateDst), 0755)
-		_ = os.Remove(updateDst)
-		_ = os.Symlink(c.UpdatePath, updateDst)
+		if filepath.Clean(c.UpdatePath) != filepath.Clean(updateDst) {
+			_ = os.MkdirAll(filepath.Dir(updateDst), 0755)
+			_ = os.Remove(updateDst)
+			_ = os.Symlink(c.UpdatePath, updateDst)
+		}
 	}
 
 	// Handle DLC symlink if provided
 	if c.DLCPath != "" {
 		dlcDst := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000c/101c9400")
-		_ = os.MkdirAll(filepath.Dir(dlcDst), 0755)
-		_ = os.Remove(dlcDst)
-		_ = os.Symlink(c.DLCPath, dlcDst)
+		if filepath.Clean(c.DLCPath) != filepath.Clean(dlcDst) {
+			_ = os.MkdirAll(filepath.Dir(dlcDst), 0755)
+			_ = os.Remove(dlcDst)
+			_ = os.Symlink(c.DLCPath, dlcDst)
+		}
 	}
 
 	// Prepare BCML Settings
