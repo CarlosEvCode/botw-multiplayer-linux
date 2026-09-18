@@ -397,22 +397,32 @@ func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 
 func (c *ManagerConfig) ValidateUpdate() (bool, string) {
 	mlcUpdate := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000e/101c9400")
-	if dirExists(mlcUpdate) {
-		return true, i18n.T("paths.val_up_cemu")
+	if dirExists(filepath.Join(mlcUpdate, "content")) || dirExists(filepath.Join(mlcUpdate, "meta")) {
+		if c.UpdatePath == "" || filepath.Clean(c.UpdatePath) == filepath.Clean(mlcUpdate) {
+			return true, i18n.T("paths.val_up_cemu")
+		}
 	}
-	if c.UpdatePath != "" && dirExists(c.UpdatePath) {
-		return true, i18n.T("paths.val_up_ext")
+	if c.UpdatePath != "" {
+		norm := NormalizeGameDir(c.UpdatePath)
+		if dirExists(filepath.Join(norm, "content")) || dirExists(filepath.Join(c.UpdatePath, "content")) || fileExists(filepath.Join(norm, "meta/meta.xml")) {
+			return true, i18n.T("paths.val_up_ext")
+		}
 	}
 	return false, i18n.T("paths.val_up_err")
 }
 
 func (c *ManagerConfig) ValidateDLC() (bool, string) {
 	mlcDlc := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000c/101c9400")
-	if dirExists(mlcDlc) {
-		return true, i18n.T("paths.val_dlc_cemu")
+	if dirExists(filepath.Join(mlcDlc, "content")) || dirExists(filepath.Join(mlcDlc, "meta")) {
+		if c.DLCPath == "" || filepath.Clean(c.DLCPath) == filepath.Clean(mlcDlc) || strings.HasPrefix(filepath.Clean(c.DLCPath), filepath.Clean(mlcDlc)) {
+			return true, i18n.T("paths.val_dlc_cemu")
+		}
 	}
-	if c.DLCPath != "" && dirExists(c.DLCPath) {
-		return true, i18n.T("paths.val_dlc_ext")
+	if c.DLCPath != "" {
+		norm := NormalizeGameDir(c.DLCPath)
+		if dirExists(filepath.Join(norm, "content")) || dirExists(filepath.Join(c.DLCPath, "content")) || fileExists(filepath.Join(norm, "meta/meta.xml")) || dirExists(filepath.Join(c.DLCPath, "0010")) {
+			return true, i18n.T("paths.val_dlc_ext")
+		}
 	}
 	return false, i18n.T("paths.val_dlc_err")
 }
