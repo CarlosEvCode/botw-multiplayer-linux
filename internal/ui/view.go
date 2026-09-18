@@ -126,15 +126,8 @@ func (m Model) renderDashboard(width int) string {
 	consoleTitle := TitleStyle.Render("CONSOLA & REGISTROS (SERVIDOR DEDICADO)")
 	vpContent := m.Viewport.View()
 
-	inputLine := ""
-	if m.InputFocused {
-		inputLine = lipgloss.NewStyle().Foreground(ColorPrimary).Bold(true).Render("> ") + m.CmdInput.View()
-	} else {
-		inputLine = DescStyle.Render("[Presione 'i' para enviar comando al servidor]")
-	}
-
 	consoleBox := ActiveBoxStyle.Width(width - 4).Render(
-		consoleTitle + "\n" + vpContent + "\n" + inputLine,
+		consoleTitle + "\n" + vpContent,
 	)
 
 	return topRow + "\n" + consoleBox
@@ -288,7 +281,6 @@ func (m Model) renderFooter(width int) string {
 		KeyStyle.Render("[g]") + " " + DescStyle.Render("Gamemodes"),
 		KeyStyle.Render("[r]") + " " + DescStyle.Render("Rutas"),
 		KeyStyle.Render("[t]") + " " + DescStyle.Render("Copiar IP"),
-		KeyStyle.Render("[i]") + " " + DescStyle.Render("Comando"),
 		KeyStyle.Render("[Tab]") + " " + DescStyle.Render("Pestana"),
 		KeyStyle.Render("[q]") + " " + DescStyle.Render("Salir"),
 	}

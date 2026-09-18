@@ -37,8 +37,6 @@ type Model struct {
 	Width        int
 	Height       int
 	Viewport     viewport.Model
-	CmdInput     textinput.Model
-	InputFocused bool
 
 	// Gamemodes cursor
 	GamemodeCursor int
@@ -55,10 +53,6 @@ type Model struct {
 }
 
 func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
-	cmdIn := textinput.New()
-	cmdIn.Placeholder = "Enviar comando al servidor (ej: 0, 1, Prop Hunt start)..."
-	cmdIn.CharLimit = 120
-
 	baseIn := textinput.New()
 	baseIn.Placeholder = "/ruta/a/The Legend of Zelda Breath of the Wild"
 	baseIn.SetValue(cfg.BaseGame)
@@ -88,7 +82,6 @@ func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
 		Network:        network.GetNetworkInfo(),
 		CurrentTab:     TabDashboard,
 		Viewport:       vp,
-		CmdInput:       cmdIn,
 		BaseInput:      baseIn,
 		UpdateInput:    upIn,
 		DLCInput:       dlcIn,

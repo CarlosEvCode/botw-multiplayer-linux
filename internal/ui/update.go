@@ -7,7 +7,6 @@ import (
 
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/config"
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/network"
-	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
@@ -70,37 +69,47 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, tickEvery(1*time.Second))
 
 	case tea.KeyMsg:
-		// When typing in command input on dashboard
-		if m.InputFocused {
-			switch msg.String() {
-			case "esc":
-				m.InputFocused = false
-				m.CmdInput.Blur()
-				return m, nil
-			case "enter":
-				val := strings.TrimSpace(m.CmdInput.Value())
-				if val != "" {
-					_ = m.Process.SendServerInput(val)
-					m.CmdInput.SetValue("")
-				}
-				return m, nil
+		// Global Tab navigation across all tabs
+		switch msg.String() {
+		case "tab":
+			m.CurrentTab = (m.CurrentTab + 1) % 4
+			if m.CurrentTab == TabPaths {
+				m.updatePathFocus()
+			} else if m.CurrentTab == TabGamemodes {
+				m.updateGamemodeFocus()
+			} else {
+				m.blurPathInputs()
 			}
-			m.CmdInput, cmd = m.CmdInput.Update(msg)
-			return m, cmd
+			return m, nil
+
+		case "shift+tab":
+			m.CurrentTab = (m.CurrentTab + 3) % 4
+			if m.CurrentTab == TabPaths {
+				m.updatePathFocus()
+			} else if m.CurrentTab == TabGamemodes {
+				m.updateGamemodeFocus()
+			} else {
+				m.blurPathInputs()
+			}
+			return m, nil
 		}
 
 		// When in Gamemodes Tab
 		if m.CurrentTab == TabGamemodes {
 			if m.GamemodeCursor == 8 { // Password input
 				switch msg.String() {
-				case "esc", "down", "tab":
+				case "esc":
 					m.ServerPassIn.Blur()
-					m.GamemodeCursor = (m.GamemodeCursor + 1) % 10
+					m.CurrentTab = TabDashboard
+					return m, nil
+				case "down":
+					m.ServerPassIn.Blur()
+					m.GamemodeCursor = 9
 					m.updateGamemodeFocus()
 					return m, nil
-				case "up", "shift+tab":
+				case "up":
 					m.ServerPassIn.Blur()
-					m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
+					m.GamemodeCursor = 7
 					m.updateGamemodeFocus()
 					return m, nil
 				case "enter", "ctrl+s":
@@ -111,14 +120,18 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 			} else if m.GamemodeCursor == 9 { // Description input
 				switch msg.String() {
-				case "esc", "down", "tab":
+				case "esc":
 					m.ServerDescIn.Blur()
-					m.GamemodeCursor = (m.GamemodeCursor + 1) % 10
+					m.CurrentTab = TabDashboard
+					return m, nil
+				case "down":
+					m.ServerDescIn.Blur()
+					m.GamemodeCursor = 0
 					m.updateGamemodeFocus()
 					return m, nil
-				case "up", "shift+tab":
+				case "up":
 					m.ServerDescIn.Blur()
-					m.GamemodeCursor = (m.GamemodeCursor + 9) % 10
+					m.GamemodeCursor = 8
 					m.updateGamemodeFocus()
 					return m, nil
 				case "enter", "ctrl+s":
@@ -147,9 +160,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+s", "s":
 				m.saveGamemodeSettings()
 				return m, nil
-			case "tab":
-				m.CurrentTab = (m.CurrentTab + 1) % 4
-				return m, nil
 			}
 		}
 
@@ -160,11 +170,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.CurrentTab = TabDashboard
 				m.blurPathInputs()
 				return m, nil
-			case "tab", "down":
+			case "down":
 				m.PathFocusIdx = (m.PathFocusIdx + 1) % 3
 				m.updatePathFocus()
 				return m, nil
-			case "shift+tab", "up":
+			case "up":
 				m.PathFocusIdx = (m.PathFocusIdx + 2) % 3
 				m.updatePathFocus()
 				return m, nil
@@ -210,16 +220,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-
-		case "tab":
-			m.CurrentTab = (m.CurrentTab + 1) % 4
-			if m.CurrentTab == TabPaths {
-				m.PathFocusIdx = 0
-				m.updatePathFocus()
-			} else if m.CurrentTab == TabGamemodes {
-				m.updateGamemodeFocus()
-			}
-			return m, nil
 
 		case "s":
 			if m.Process.IsServerRunning() {
@@ -274,13 +274,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.PathFocusIdx = 0
 			m.updatePathFocus()
 			return m, nil
-
-		case "i", "/":
-			if m.CurrentTab == TabDashboard {
-				m.InputFocused = true
-				m.CmdInput.Focus()
-				return m, textinput.Blink
-			}
 		}
 	}
 
