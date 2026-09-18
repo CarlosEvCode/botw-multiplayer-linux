@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/config"
+	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/i18n"
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/network"
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/process"
 	"github.com/charmbracelet/bubbles/textinput"
@@ -18,6 +19,7 @@ const (
 	TabGamemodes
 	TabPaths
 	TabNetwork
+	TabSettings
 )
 
 type LogMsg string
@@ -53,28 +55,30 @@ type Model struct {
 }
 
 func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
+	i18n.LoadLanguage()
+
 	baseIn := textinput.New()
-	baseIn.Placeholder = "/ruta/a/The Legend of Zelda Breath of the Wild"
+	baseIn.Placeholder = "/path/to/The Legend of Zelda Breath of the Wild"
 	baseIn.SetValue(cfg.BaseGame)
 
 	upIn := textinput.New()
-	upIn.Placeholder = "/ruta/a/Update v208 (opcional si ya esta en Cemu)"
+	upIn.Placeholder = "/path/to/Update v208 (optional if already in Cemu)"
 	upIn.SetValue(cfg.UpdatePath)
 
 	dlcIn := textinput.New()
-	dlcIn.Placeholder = "/ruta/a/DLC v80 (opcional si ya esta en Cemu)"
+	dlcIn.Placeholder = "/path/to/DLC v80 (optional if already in Cemu)"
 	dlcIn.SetValue(cfg.DLCPath)
 
 	passIn := textinput.New()
-	passIn.Placeholder = "Vacio si no requiere clave"
+	passIn.Placeholder = "Empty if no password required"
 	passIn.SetValue(cfg.ServerCfg.Password)
 
 	descIn := textinput.New()
-	descIn.Placeholder = "Descripcion del servidor"
+	descIn.Placeholder = "Server description"
 	descIn.SetValue(cfg.ServerCfg.Description)
 
 	vp := viewport.New(80, 14)
-	vp.SetContent("Iniciando consola de logs...")
+	vp.SetContent(i18n.T("dash.console_title") + "...")
 
 	m := Model{
 		Config:         cfg,

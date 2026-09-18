@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/i18n"
 )
 
 type BCMLSettings struct {
@@ -367,7 +369,7 @@ func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
 
 func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 	if c.BaseGame == "" {
-		return false, "Ruta no configurada"
+		return false, i18n.T("paths.val_not_set")
 	}
 	norm := NormalizeGameDir(c.BaseGame)
 	rpx1 := filepath.Join(norm, "code/U-King.rpx")
@@ -376,37 +378,37 @@ func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 	content2 := filepath.Join(c.BaseGame, "content")
 
 	if fileExists(rpx1) || fileExists(rpx2) {
-		return true, "Valido (Ejecutable U-King.rpx detectado)"
+		return true, i18n.T("paths.val_rpx")
 	}
 	if dirExists(content1) || dirExists(content2) {
-		return true, "Valido (Carpeta content detectada)"
+		return true, i18n.T("paths.val_content")
 	}
 	if dirExists(norm) || dirExists(c.BaseGame) {
-		return true, "Valido (Carpeta del juego detectada)"
+		return true, i18n.T("paths.val_dir")
 	}
-	return false, "No se encontro code/U-King.rpx ni carpeta content"
+	return false, i18n.T("paths.val_err_base")
 }
 
 func (c *ManagerConfig) ValidateUpdate() (bool, string) {
 	mlcUpdate := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000e/101c9400")
 	if dirExists(mlcUpdate) {
-		return true, "Instalado en Cemu (v208)"
+		return true, i18n.T("paths.val_up_cemu")
 	}
 	if c.UpdatePath != "" && dirExists(c.UpdatePath) {
-		return true, "Vinculado externamente"
+		return true, i18n.T("paths.val_up_ext")
 	}
-	return false, "No encontrado (Requiere Update v208)"
+	return false, i18n.T("paths.val_up_err")
 }
 
 func (c *ManagerConfig) ValidateDLC() (bool, string) {
 	mlcDlc := filepath.Join(c.CemuDir, "mlc01/usr/title/0005000c/101c9400")
 	if dirExists(mlcDlc) {
-		return true, "Instalado en Cemu (v80)"
+		return true, i18n.T("paths.val_dlc_cemu")
 	}
 	if c.DLCPath != "" && dirExists(c.DLCPath) {
-		return true, "Vinculado externamente"
+		return true, i18n.T("paths.val_dlc_ext")
 	}
-	return false, "No encontrado (Requiere DLC v80)"
+	return false, i18n.T("paths.val_dlc_err")
 }
 
 func toLinuxPath(driveC, winPath string) string {
