@@ -25,7 +25,7 @@ command -v curl >/dev/null 2>&1 || { echo "[ERROR] 'curl' no se encuentra instal
 if [ -z "$1" ]; then
     echo ""
     echo "Ingrese la ruta absoluta del juego base BotW (desempaquetado):"
-    echo "Ejemplo: /home/$USER/Juegos/The Legend of Zelda Breath of the Wild [ALZE01]"
+    echo "Ejemplo: /home/$USER/Juegos/The Legend of Zelda Breath of the Wild"
     read -r -p "Ruta del juego: " GAME_PATH
 else
     GAME_PATH="$1"
