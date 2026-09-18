@@ -31,12 +31,16 @@ command -v 7z >/dev/null 2>&1 || command -v 7za >/dev/null 2>&1 || { echo "[ERRO
 
 # Determine terminal for desktop launcher
 TERMINAL_BIN="xterm"
-for t in kitty foot ghostty alacritty konsole gnome-terminal xfce4-terminal; do
-    if command -v "$t" >/dev/null 2>&1; then
-        TERMINAL_BIN="$t"
-        break
-    fi
-done
+if [ -n "$TERMINAL" ] && command -v "$TERMINAL" >/dev/null 2>&1; then
+    TERMINAL_BIN="$(basename "$TERMINAL")"
+else
+    for t in kitty foot ghostty alacritty konsole gnome-terminal xfce4-terminal; do
+        if command -v "$t" >/dev/null 2>&1; then
+            TERMINAL_BIN="$t"
+            break
+        fi
+    done
+fi
 
 # 2. Game path (optional at install time, configurable anytime in TUI)
 GAME_PATH=""
