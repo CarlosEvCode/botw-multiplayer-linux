@@ -6,7 +6,7 @@ An automated deployment installer, dedicated TUI Manager, and comprehensive tech
 
 ---
 
-## 🚀 Quick Install (1-Line Command)
+## 1. Quick Installation
 
 Run this single command in your terminal to download, configure, and install everything automatically:
 
@@ -23,11 +23,11 @@ chmod +x install.sh
 ./install.sh
 ```
 
-> **Note:** The installer automatically provisions 64-bit Wine, Microsoft .NET 8.0 Desktop Runtime, Visual C++ 2015–2022, Cemu 1.26.2 (with merged BCML patches & 32 Link player models), Milk Bar Launcher, and the `botw-manager` TUI CLI.
+> **Note:** The installer automatically provisions 64-bit Wine, Microsoft .NET 8.0 Desktop Runtime, Visual C++ 2015–2022, Cemu 1.26.2 (with merged BCML patches and 32 Link player models), Milk Bar Launcher, and the `botw-manager` TUI CLI.
 
 ---
 
-## 🎮 TUI Manager (`botw-manager`)
+## 2. TUI Manager (`botw-manager`)
 
 Manage servers, clients, gamemodes, routes, and network IPs directly from your terminal:
 
@@ -36,24 +36,24 @@ botw-manager
 ```
 
 ### Key Features & Controls
-* **Global Navigation:** Press **`Tab`** / **`Shift+Tab`** to switch between tabs at any time.
+* **Global Navigation:** Press `Tab` / `Shift+Tab` to switch between tabs at any time.
 * **1. Dashboard:**
-  * **`[s]`**: Start / Stop Dedicated Server (live log console stream).
-  * **`[m]`**: Launch Milk Bar Launcher.
-  * **`[c]`**: Launch Cemu 1.26.2.
-  * **`[t]`**: Copy Tailscale / LAN IP to clipboard.
-  * **`[q]`**: Exit manager.
+  * `[s]`: Start / Stop Dedicated Server (live log console stream).
+  * `[m]`: Launch Milk Bar Launcher.
+  * `[c]`: Launch Cemu 1.26.2.
+  * `[t]`: Copy Tailscale / LAN IP to clipboard.
+  * `[q]`: Exit manager.
 * **2. Gamemodes:**
-  * **`←` / `→`**: Cycle game modes:
+  * `←` / `→`: Cycle game modes:
     * **Standard Co-op (Free):** Full story co-op with customizable sync options.
     * **Hunter vs Speedrunner:** Competitive Manhunt mode (automatically enforces individual player progress).
     * **DeathSwap:** High-stakes survival swap mode (auto-locks survival rules).
-  * **`Space`**: Toggle individual synchronization rules (Quests, Shrines, Towers, Koroks, Enemies, Dungeons, Locations).
-  * **`s`**: Save rules (auto-restarts server if currently active).
+  * `Space`: Toggle individual synchronization rules (Quests, Shrines, Towers, Koroks, Enemies, Dungeons, Locations).
+  * `s`: Save rules (auto-restarts server if currently active).
 * **3. Paths & DLC:**
-  * **`↓` / `↑`**: Select field (Base Game, Update v208, DLC v80).
-  * **`f`**: Open native GUI folder browser (*Zenity* / *Kdialog*) to select folders with one click.
-  * **`Enter`**: Save and rebuild Wine/BCML symbolic links.
+  * `↓` / `↑`: Select field (Base Game, Update v208, DLC v80).
+  * `f`: Open native GUI folder browser (*Zenity* / *Kdialog*) to select folders with one click.
+  * `Enter`: Save and rebuild Wine/BCML symbolic links.
 * **4. Network:**
   * View active Tailscale VPN, LAN, and ZeroTier IP addresses with connection guides.
 * **5. Settings:**
@@ -62,11 +62,11 @@ botw-manager
 
 ---
 
-## 🌐 Multiplayer Connection Guide
+## 3. Multiplayer Connection Guide
 
 ### Host (Player hosting the Server)
-1. Launch `botw-manager` and press **`s`** to start the Dedicated Server.
-2. Press **`m`** to launch Milk Bar Launcher.
+1. Launch `botw-manager` and press `[s]` to start the Dedicated Server.
+2. Press `[m]` to launch Milk Bar Launcher.
 3. In Milk Bar Launcher, set:
    * **IP:** `127.0.0.1`
    * **Port:** `5050`
@@ -74,7 +74,7 @@ botw-manager
 
 ### Remote Friends (Players joining over the Internet)
 1. Install [Tailscale](https://tailscale.com/) (or ZeroTier) on both Host and Client machines.
-2. Host copies their Tailscale IP (press **`t`** in `botw-manager`).
+2. Host copies their Tailscale IP (press `[t]` in `botw-manager`).
 3. Remote players open Milk Bar Launcher and enter:
    * **IP:** `Host's Tailscale IP` (e.g., `100.x.y.z`)
    * **Port:** `5050`
@@ -82,7 +82,7 @@ botw-manager
 
 ---
 
-## 🪟 Hyprland & Wayland Window Stability
+## 4. Hyprland & Wayland Window Stability
 
 If you use **Hyprland**, add the following window rules to `~/.config/hypr/hyprland.lua` to prevent XWayland focus flickering and send Milk Bar Launcher silently to background Workspace 3:
 
@@ -102,7 +102,7 @@ o.window({ class = "^(cemu\\.exe)$" }, {
 
 ---
 
-## 🛠️ Technical Architecture & Linux Compatibility Notes
+## 5. Technical Architecture & Linux Compatibility Notes
 
 For reference, the following technical solutions were implemented to ensure stability under Wine on Linux:
 
@@ -119,7 +119,7 @@ For reference, the following technical solutions were implemented to ensure stab
 
 ---
 
-## 📜 Credits & Attribution
+## 6. Credits & Attribution
 
 * **Milk Bar Launcher & Dedicated Server:** Developed by the [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher) community.
 * **Cemu (Wii U Emulator):** Developed by [Team Cemu](https://cemu.info/) under Mozilla Public License 2.0.

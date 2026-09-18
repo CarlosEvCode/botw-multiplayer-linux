@@ -6,7 +6,7 @@ Instalador automatizado, TUI Manager interactivo y entorno técnico completo par
 
 ---
 
-## 🚀 Instalación Rápida (Comando en 1 Línea)
+## 1. Instalación Rápida
 
 Ejecuta este comando en tu terminal para descargar, configurar e instalar todo automáticamente:
 
@@ -27,7 +27,7 @@ chmod +x install.sh
 
 ---
 
-## 🎮 TUI Manager (`botw-manager`)
+## 2. TUI Manager (`botw-manager`)
 
 Administra servidores, clientes, modos de juego, rutas del juego y direcciones IP de red directamente desde tu terminal:
 
@@ -36,24 +36,24 @@ botw-manager
 ```
 
 ### Funciones y Atajos de Teclado
-* **Navegación Global:** Presiona **`Tab`** / **`Shift+Tab`** para alternar entre pestañas en cualquier momento.
+* **Navegación Global:** Presiona `Tab` / `Shift+Tab` para alternar entre pestañas en cualquier momento.
 * **1. Dashboard:**
-  * **`[s]`**: Iniciar / Detener Servidor Dedicado (con consola de logs en vivo).
-  * **`[m]`**: Lanzar Milk Bar Launcher.
-  * **`[c]`**: Lanzar Cemu 1.26.2.
-  * **`[t]`**: Copiar IP de Tailscale / LAN al portapapeles.
-  * **`[q]`**: Salir de la aplicación.
+  * `[s]`: Iniciar / Detener Servidor Dedicado (con consola de logs en vivo).
+  * `[m]`: Lanzar Milk Bar Launcher.
+  * `[c]`: Lanzar Cemu 1.26.2.
+  * `[t]`: Copiar IP de Tailscale / LAN al portapapeles.
+  * `[q]`: Salir de la aplicación.
 * **2. Gamemodes:**
-  * **`←` / `→`**: Alternar modos de juego:
+  * `←` / `→`: Alternar modos de juego:
     * **Cooperativo Estándar (Libre):** Modo cooperativo con sincronizaciones totalmente personalizables.
     * **Hunter vs Speedrunner:** Modo competitivo Manhunt (bloquea el progreso individual automáticamente).
     * **DeathSwap:** Modo de supervivencia con intercambio de posiciones periódicas (bloquea sincronizaciones de progreso).
-  * **`Espacio`**: Alternar reglas de sincronización individuales (Misiones, Santuarios, Torres, Kologs, Enemigos, Mazmorras, Ubicaciones).
-  * **`s`**: Guardar reglas (reinicia el servidor automáticamente si está corriendo).
+  * `Espacio`: Alternar reglas de sincronización individuales (Misiones, Santuarios, Torres, Kologs, Enemigos, Mazmorras, Ubicaciones).
+  * `s`: Guardar reglas (reinicia el servidor automáticamente si está corriendo).
 * **3. Rutas & DLC:**
-  * **`↓` / `↑`**: Seleccionar campo (Juego Base, Update v208, DLC v80).
-  * **`f`**: Abrir el explorador de carpetas gráfico del sistema (*Zenity* / *Kdialog*) para elegir rutas con un clic.
-  * **`Enter`**: Guardar y reconstruir los enlaces simbólicos de Wine y BCML.
+  * `↓` / `↑`: Seleccionar campo (Juego Base, Update v208, DLC v80).
+  * `f`: Abrir el explorador de carpetas gráfico del sistema (*Zenity* / *Kdialog*) para elegir rutas con un clic.
+  * `Enter`: Guardar y reconstruir los enlaces simbólicos de Wine y BCML.
 * **4. Red:**
   * Muestra las interfaces activas de Tailscale VPN, Red Local LAN y ZeroTier con instrucciones de conexión.
 * **5. Ajustes:**
@@ -62,11 +62,11 @@ botw-manager
 
 ---
 
-## 🌐 Guía de Conexión Multijugador
+## 3. Guía de Conexión Multijugador
 
 ### Anfitrión (Host / Servidor)
-1. Abre `botw-manager` y presiona **`s`** para iniciar el Servidor Dedicado.
-2. Presiona **`m`** para abrir Milk Bar Launcher.
+1. Abre `botw-manager` y presiona `[s]` para iniciar el Servidor Dedicado.
+2. Presiona `[m]` para abrir Milk Bar Launcher.
 3. En Milk Bar Launcher, ingresa:
    * **IP:** `127.0.0.1`
    * **Puerto:** `5050`
@@ -74,7 +74,7 @@ botw-manager
 
 ### Jugadores Remotos (Amigos por Internet)
 1. Instala [Tailscale](https://tailscale.com/) (o ZeroTier) tanto en el equipo del Host como en el de los clientes.
-2. El Host copia su IP de Tailscale (presionando **`t`** en `botw-manager`).
+2. El Host copia su IP de Tailscale (presionando `[t]` en `botw-manager`).
 3. Los jugadores remotos abren Milk Bar Launcher e ingresan:
    * **IP:** `IP de Tailscale del Host` (ej. `100.x.y.z`)
    * **Puerto:** `5050`
@@ -82,7 +82,7 @@ botw-manager
 
 ---
 
-## 🪟 Estabilidad de Ventanas en Hyprland / Wayland
+## 4. Estabilidad de Ventanas en Hyprland / Wayland
 
 Si usas **Hyprland**, añade las siguientes reglas a tu archivo `~/.config/hypr/hyprland.lua` para evitar parpadeos en XWayland y enviar Milk Bar Launcher en segundo plano al Workspace 3:
 
@@ -102,7 +102,7 @@ o.window({ class = "^(cemu\\.exe)$" }, {
 
 ---
 
-## 🛠️ Arquitectura Técnica y Notas de Compatibilidad
+## 5. Arquitectura Técnica y Notas de Compatibilidad
 
 Como referencia técnica, se implementaron las siguientes soluciones para garantizar la estabilidad bajo Wine en Linux:
 
@@ -119,7 +119,7 @@ Como referencia técnica, se implementaron las siguientes soluciones para garant
 
 ---
 
-## 📜 Créditos y Atribuciones
+## 6. Créditos y Atribuciones
 
 * **Milk Bar Launcher & Dedicated Server:** Desarrollado por la comunidad de [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher).
 * **Cemu (Emulador de Wii U):** Desarrollado por [Team Cemu](https://cemu.info/) bajo licencia Mozilla Public License 2.0.
