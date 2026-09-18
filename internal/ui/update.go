@@ -292,19 +292,79 @@ func (m *Model) toggleGamemodeOption() {
 	switch m.GamemodeCursor {
 	case 0:
 		m.Config.ServerCfg.SpecialMode = (m.Config.ServerCfg.SpecialMode + 1) % 3
+		switch m.Config.ServerCfg.SpecialMode {
+		case 0: // Cooperativo Estándar
+			// Restore co-op defaults if all were disabled
+			if !m.Config.ServerCfg.QuestSync && !m.Config.ServerCfg.ShrineSync {
+				m.Config.ServerCfg.QuestSync = true
+				m.Config.ServerCfg.ShrineSync = true
+				m.Config.ServerCfg.TowerSync = true
+				m.Config.ServerCfg.KorokSync = true
+				m.Config.ServerCfg.EnemySync = true
+				m.Config.ServerCfg.DungeonSync = true
+				m.Config.ServerCfg.LocationSync = true
+			}
+			m.SetNotification("Modo: Cooperativo Libre - Sincronizaciones desbloqueadas", 2*time.Second)
+		case 1: // Hunter vs Speedrunner
+			m.Config.ServerCfg.QuestSync = false
+			m.Config.ServerCfg.ShrineSync = false
+			m.Config.ServerCfg.TowerSync = false
+			m.Config.ServerCfg.KorokSync = false
+			m.Config.ServerCfg.DungeonSync = false
+			m.Config.ServerCfg.LocationSync = false
+			m.Config.ServerCfg.EnemySync = true
+			m.SetNotification("Modo: Hunter vs Speedrunner - Progreso individual activado", 2*time.Second)
+		case 2: // DeathSwap
+			m.Config.ServerCfg.QuestSync = false
+			m.Config.ServerCfg.ShrineSync = false
+			m.Config.ServerCfg.TowerSync = false
+			m.Config.ServerCfg.KorokSync = false
+			m.Config.ServerCfg.DungeonSync = false
+			m.Config.ServerCfg.LocationSync = false
+			m.Config.ServerCfg.EnemySync = false
+			m.SetNotification("Modo: DeathSwap - Supervivencia individual activada", 2*time.Second)
+		}
 	case 1:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de misiones bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.QuestSync = !m.Config.ServerCfg.QuestSync
 	case 2:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de santuarios bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.ShrineSync = !m.Config.ServerCfg.ShrineSync
 	case 3:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de torres bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.TowerSync = !m.Config.ServerCfg.TowerSync
 	case 4:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de Kologs bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.KorokSync = !m.Config.ServerCfg.KorokSync
 	case 5:
+		if m.Config.ServerCfg.SpecialMode == 2 {
+			m.SetNotification("Sincronizacion de enemigos desactivada en DeathSwap", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.EnemySync = !m.Config.ServerCfg.EnemySync
 	case 6:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de mazmorras bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.DungeonSync = !m.Config.ServerCfg.DungeonSync
 	case 7:
+		if m.Config.ServerCfg.SpecialMode != 0 {
+			m.SetNotification("Sincronizacion de ubicaciones bloqueada en modo competitivo", 2*time.Second)
+			return
+		}
 		m.Config.ServerCfg.LocationSync = !m.Config.ServerCfg.LocationSync
 	}
 	_ = m.Config.SaveServerConfig(m.Config.ServerCfg)

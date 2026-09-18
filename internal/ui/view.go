@@ -143,14 +143,18 @@ func (m Model) renderGamemodesTab(width int) string {
 		return "  " + text
 	}
 
-	chk := func(b bool) string {
+	chk := func(b bool, locked bool) string {
+		if locked {
+			return lipgloss.NewStyle().Foreground(ColorMuted).Render("[-] Bloqueado")
+		}
 		if b {
 			return lipgloss.NewStyle().Foreground(ColorSuccess).Bold(true).Render("[X]")
 		}
 		return lipgloss.NewStyle().Foreground(ColorMuted).Render("[ ]")
 	}
 
-	modeStr := fmt.Sprintf("%s (%d)", getSpecialModeName(m.Config.ServerCfg.SpecialMode), m.Config.ServerCfg.SpecialMode)
+	mode := m.Config.ServerCfg.SpecialMode
+	modeStr := fmt.Sprintf("%s (%d)", getSpecialModeName(mode), mode)
 
 	var statusBanner string
 	if m.Process.IsServerRunning() {
@@ -159,25 +163,37 @@ func (m Model) renderGamemodesTab(width int) string {
 		statusBanner = lipgloss.NewStyle().Foreground(ColorSuccess).Render(">> SERVIDOR DETENIDO: Configure sus reglas y presione [s] para iniciar.")
 	}
 
+	var syncHeader string
+	isLockedProgress := mode != 0
+	isLockedEnemies := mode == 2
+
+	if mode == 0 {
+		syncHeader = LabelStyle.Render("OPCIONES DE SINCRONIZACION (MODO LIBRE / PERSONALIZABLE):")
+	} else if mode == 1 {
+		syncHeader = LabelStyle.Render("OPCIONES DE SINCRONIZACION (PROGRESO INDIVIDUAL - HUNTER VS SPEEDRUNNER):")
+	} else {
+		syncHeader = LabelStyle.Render("OPCIONES DE SINCRONIZACION (DESACTIVADAS POR SUPERVIVENCIA - DEATHSWAP):")
+	}
+
 	items := []string{
 		statusBanner,
 		"",
 		fmt.Sprintf("%s: %s", cur(0, "Modo de Juego Especial"), KeyStyle.Render(modeStr)),
 		"",
-		LabelStyle.Render("OPCIONES DE SINCRONIZACION:"),
-		fmt.Sprintf("%s %s Sincronizar Misiones (QuestSync)", cur(1, chk(m.Config.ServerCfg.QuestSync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Santuarios (ShrineSync)", cur(2, chk(m.Config.ServerCfg.ShrineSync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Torres (TowerSync)", cur(3, chk(m.Config.ServerCfg.TowerSync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Kologs (KorokSync)", cur(4, chk(m.Config.ServerCfg.KorokSync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Enemigos (EnemySync)", cur(5, chk(m.Config.ServerCfg.EnemySync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Mazmorras (DungeonSync)", cur(6, chk(m.Config.ServerCfg.DungeonSync)), ""),
-		fmt.Sprintf("%s %s Sincronizar Ubicaciones (LocationSync)", cur(7, chk(m.Config.ServerCfg.LocationSync)), ""),
+		syncHeader,
+		fmt.Sprintf("%s %s Sincronizar Misiones (QuestSync)", cur(1, chk(m.Config.ServerCfg.QuestSync, isLockedProgress)), ""),
+		fmt.Sprintf("%s %s Sincronizar Santuarios (ShrineSync)", cur(2, chk(m.Config.ServerCfg.ShrineSync, isLockedProgress)), ""),
+		fmt.Sprintf("%s %s Sincronizar Torres (TowerSync)", cur(3, chk(m.Config.ServerCfg.TowerSync, isLockedProgress)), ""),
+		fmt.Sprintf("%s %s Sincronizar Kologs (KorokSync)", cur(4, chk(m.Config.ServerCfg.KorokSync, isLockedProgress)), ""),
+		fmt.Sprintf("%s %s Sincronizar Enemigos (EnemySync)", cur(5, chk(m.Config.ServerCfg.EnemySync, isLockedEnemies)), ""),
+		fmt.Sprintf("%s %s Sincronizar Mazmorras (DungeonSync)", cur(6, chk(m.Config.ServerCfg.DungeonSync, isLockedProgress)), ""),
+		fmt.Sprintf("%s %s Sincronizar Ubicaciones (LocationSync)", cur(7, chk(m.Config.ServerCfg.LocationSync, isLockedProgress)), ""),
 		"",
 		LabelStyle.Render("PARAMETROS DEL SERVIDOR:"),
 		fmt.Sprintf("%s: %s", cur(8, "Contrasena"), m.ServerPassIn.View()),
 		fmt.Sprintf("%s: %s", cur(9, "Descripcion"), m.ServerDescIn.View()),
 		"",
-		DescStyle.Render("[Espacio/Enter: Alternar opcion]  [s / Enter en inputs: Guardar]  [Esc: Volver]"),
+		DescStyle.Render("[Espacio/Enter: Alternar opcion]  [s / Enter en inputs: Guardar y Aplicar]  [Esc: Volver]"),
 	}
 
 	return BoxStyle.Width(boxWidth).Render(
