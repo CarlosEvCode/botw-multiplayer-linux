@@ -9,37 +9,61 @@ import (
 )
 
 type NetworkInfo struct {
-	LocalIP     string
-	TailscaleIP string
 	ZeroTierIP  string
+	TailscaleIP string
+	LocalIP     string
 	PublicIP    string
 }
 
 func GetNetworkInfo() NetworkInfo {
 	info := NetworkInfo{
-		LocalIP:     getLocalIP(),
-		TailscaleIP: getTailscaleIP(),
 		ZeroTierIP:  getZeroTierIP(),
+		TailscaleIP: getTailscaleIP(),
+		LocalIP:     getLocalIP(),
 	}
 	return info
 }
 
-func getLocalIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return "127.0.0.1"
-	}
-	for _, addr := range addrs {
-		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				ip := ipnet.IP.String()
-				if !strings.HasPrefix(ip, "100.") { // Tailscale typically uses 100.x
-					return ip
+func getZeroTierIP() string {
+	// Try zerotier-cli listnetworks first
+	out, err := exec.Command("zerotier-cli", "listnetworks").Output()
+	if err == nil {
+		lines := strings.Split(string(out), "\n")
+		for _, line := range lines {
+			fields := strings.Fields(line)
+			// Format: 200 listnetworks <nwid> <name> <mac> <status> <type> <dev> <assigned-ips>
+			if len(fields) >= 8 && fields[4] == "OK" {
+				for _, f := range fields[7:] {
+					ips := strings.Split(f, ",")
+					for _, ipMask := range ips {
+						ip := strings.Split(ipMask, "/")[0]
+						parsed := net.ParseIP(ip)
+						if parsed != nil && parsed.To4() != nil {
+							return ip
+						}
+					}
 				}
 			}
 		}
 	}
-	return "127.0.0.1"
+
+	// Fallback to checking any zt* or zerotier* network interface
+	ifaces, err := net.Interfaces()
+	if err == nil {
+		for _, iface := range ifaces {
+			if strings.HasPrefix(iface.Name, "zt") || strings.HasPrefix(iface.Name, "zerotier") {
+				addrs, err := iface.Addrs()
+				if err == nil {
+					for _, addr := range addrs {
+						if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.To4() != nil {
+							return ipnet.IP.String()
+						}
+					}
+				}
+			}
+		}
+	}
+	return ""
 }
 
 func getTailscaleIP() string {
@@ -67,27 +91,25 @@ func getTailscaleIP() string {
 	return ""
 }
 
-func getZeroTierIP() string {
-	// Check for any zt* interface
-	ifaces, err := net.Interfaces()
+func getLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return ""
+		return "127.0.0.1"
 	}
-	for _, iface := range ifaces {
-		if strings.HasPrefix(iface.Name, "zt") {
-			addrs, err := iface.Addrs()
-			if err == nil {
-				for _, addr := range addrs {
-					if ipnet, ok := addr.(*net.IPNet); ok && ipnet.IP.To4() != nil {
-						return ipnet.IP.String()
-					}
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ip := ipnet.IP.String()
+				if !strings.HasPrefix(ip, "100.") { // Exclude Tailscale CGNAT 100.x
+					return ip
 				}
 			}
 		}
 	}
-	return ""
+	return "127.0.0.1"
 }
 
 func CopyToClipboard(text string) error {
 	return clipboard.WriteAll(text)
 }
+

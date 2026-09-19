@@ -68,7 +68,7 @@ func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
 
 	// Client inputs
 	cIP := textinput.New()
-	cIP.Placeholder = "127.0.0.1 or friend's Tailscale/LAN IP"
+	cIP.Placeholder = "127.0.0.1 or friend's ZeroTier/VPN IP"
 	cIP.SetValue(cfg.ClientCfg.TargetIP)
 
 	cPort := textinput.New()

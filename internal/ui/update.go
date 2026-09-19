@@ -134,6 +134,20 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.SetNotification(i18n.T("notif.client_set_local"), 2*time.Second)
 					return m, nil
 				}
+			case "t":
+				if m.ClientCursor == 0 {
+					targetIP := "127.0.0.1"
+					if m.Network.ZeroTierIP != "" {
+						targetIP = m.Network.ZeroTierIP
+					} else if m.Network.TailscaleIP != "" {
+						targetIP = m.Network.TailscaleIP
+					} else if m.Network.LocalIP != "" {
+						targetIP = m.Network.LocalIP
+					}
+					m.ClientIPIn.SetValue(targetIP)
+					m.SetNotification(fmt.Sprintf(i18n.T("notif.client_set_vpn"), targetIP), 2*time.Second)
+					return m, nil
+				}
 			case "ctrl+s", "s":
 				m.saveClientSettings()
 				return m, nil
@@ -360,12 +374,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case "t":
-			if m.Network.TailscaleIP != "" {
-				_ = network.CopyToClipboard(m.Network.TailscaleIP)
-				m.SetNotification(fmt.Sprintf(i18n.T("notif.ip_copied"), m.Network.TailscaleIP), 2*time.Second)
-			} else if m.Network.ZeroTierIP != "" {
+			if m.Network.ZeroTierIP != "" {
 				_ = network.CopyToClipboard(m.Network.ZeroTierIP)
 				m.SetNotification(fmt.Sprintf(i18n.T("notif.zt_ip_copied"), m.Network.ZeroTierIP), 2*time.Second)
+			} else if m.Network.TailscaleIP != "" {
+				_ = network.CopyToClipboard(m.Network.TailscaleIP)
+				m.SetNotification(fmt.Sprintf(i18n.T("notif.ip_copied"), m.Network.TailscaleIP), 2*time.Second)
 			} else if m.Network.LocalIP != "" {
 				_ = network.CopyToClipboard(m.Network.LocalIP)
 				m.SetNotification(fmt.Sprintf(i18n.T("notif.local_ip_copied"), m.Network.LocalIP), 2*time.Second)

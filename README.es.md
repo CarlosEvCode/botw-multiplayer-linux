@@ -42,13 +42,13 @@ botw-manager
   * `[c]`: Conectar al Juego (inicia Cemu e inyecta el mod multijugador de forma headless mediante `MilkBar.CLI`).
   * `[x]`: Desconectar / Detener la sesión activa del cliente.
   * `[e]`: Lanzar Cemu 1.26.2 (Individual / Sin conexión).
-  * `[t]`: Copiar IP de Tailscale / ZeroTier / LAN al portapapeles.
+  * `[t]`: Copiar IP de ZeroTier / VPN / LAN al portapapeles.
   * `[q]`: Salir de la aplicación.
 * **2. Cliente & Conexión:**
   * Configura los parámetros de conexión multijugador: IP del servidor destino, puerto, contraseña, nombre del jugador y modelo del personaje.
   * `[c]` / `[Enter]`: Conectar al Juego.
   * `[l]`: Fijar IP destino a `127.0.0.1` (Anfitrión Local).
-  * `[t]`: Fijar IP destino a la IP detectada de Tailscale/ZeroTier/LAN.
+  * `[t]`: Fijar IP destino a la IP detectada de ZeroTier / VPN / LAN.
   * `[s]`: Guardar parámetros de conexión.
   * `[x]`: Desconectar cliente activo.
 * **3. Modos de Juego:**
@@ -63,7 +63,7 @@ botw-manager
   * `f`: Abrir el explorador de carpetas gráfico del sistema (*Zenity* / *Kdialog*) para elegir rutas con un clic.
   * `Enter`: Guardar y reconstruir los enlaces simbólicos de Wine y BCML.
 * **5. Red:**
-  * Muestra las interfaces activas de Tailscale VPN, Red Local LAN y ZeroTier con instrucciones de conexión.
+  * Muestra las interfaces activas de ZeroTier (Principal), Tailscale y Red Local LAN con instrucciones de conexión.
 * **6. Ajustes:**
   * **Selector de Idioma:** Cambia instantáneamente entre **English** y **Español**.
   * Información del proyecto, versión y enlaces al repositorio.
@@ -82,10 +82,11 @@ botw-manager
 2. El Anfitrión comparte su **IP Local LAN** mostrada en `botw-manager` (ej. `192.168.1.50`).
 3. Los demás jugadores abren `botw-manager` en sus equipos, van a la Pestaña `2. Cliente & Conexión`, ingresan la IP LAN del Anfitrión (`192.168.1.50`) y presionan `[c]`.
 
-### C. Internet / Amigos Remotos (VPN Tailscale o ZeroTier)
-1. Conéctate a la misma red virtual ([Tailscale](https://tailscale.com/) o [ZeroTier](https://www.zerotier.com/)) tanto en el equipo del Anfitrión como en el de los clientes.
-2. El Anfitrión inicia el Servidor Dedicado y copia su IP de VPN (presionando `[t]` en `botw-manager`).
-3. Los jugadores remotos abren `botw-manager`, van a la Pestaña `2. Cliente & Conexión`, pegan la IP de VPN del Anfitrión y presionan `[c]`.
+### C. Internet / Amigos Remotos (ZeroTier VPN - Recomendado)
+1. Crea una red virtual compartida en [ZeroTier](https://www.zerotier.com/) y haz que los jugadores se unan con su ID (`zerotier-cli join <network-id>`).
+2. El Anfitrión inicia el Servidor Dedicado y copia su IP de ZeroTier (presionando `[t]` en `botw-manager`).
+3. Los jugadores remotos abren `botw-manager`, van a la Pestaña `2. Cliente & Conexión`, pegan la IP de ZeroTier del Anfitrión y presionan `[c]`.
+*(Tailscale también es compatible si prefieres usar redes malladas entre tus dispositivos propios).*
 
 ---
 

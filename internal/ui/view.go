@@ -118,14 +118,14 @@ func (m Model) renderDashboard(width int) string {
 
 	// Network Quick Info
 	var vpnLabel, vpnIP string
-	if m.Network.TailscaleIP != "" {
-		vpnLabel = "IP Tailscale:"
-		vpnIP = m.Network.TailscaleIP
-	} else if m.Network.ZeroTierIP != "" {
-		vpnLabel = "IP ZeroTier:"
+	if m.Network.ZeroTierIP != "" {
+		vpnLabel = i18n.T("dash.net_zerotier")
 		vpnIP = m.Network.ZeroTierIP
+	} else if m.Network.TailscaleIP != "" {
+		vpnLabel = i18n.T("dash.net_tailscale")
+		vpnIP = m.Network.TailscaleIP
 	} else {
-		vpnLabel = "IP VPN:"
+		vpnLabel = i18n.T("dash.net_zerotier")
 		vpnIP = i18n.T("dash.net_notfound")
 	}
 
@@ -321,30 +321,39 @@ func (m Model) renderPathsTab(width int) string {
 func (m Model) renderNetworkTab(width int) string {
 	boxWidth := width - 4
 
-	tsBadge := StatusStopped.String()
-	if m.Network.TailscaleIP != "" {
-		tsBadge = StatusActive.String()
-	}
-
 	ztBadge := StatusStopped.String()
 	if m.Network.ZeroTierIP != "" {
 		ztBadge = StatusActive.String()
 	}
 
+	tsBadge := StatusStopped.String()
+	if m.Network.TailscaleIP != "" {
+		tsBadge = StatusActive.String()
+	}
+
+	primaryVPNIP := m.Network.ZeroTierIP
+	if primaryVPNIP == "" {
+		primaryVPNIP = m.Network.TailscaleIP
+	}
+	if primaryVPNIP == "" {
+		primaryVPNIP = m.Network.LocalIP
+	}
+
 	content := fmt.Sprintf(
 		"%s\n"+
-			"  %-18s %-25s %s\n"+
-			"  %-18s %-25s\n"+
-			"  %-18s %-25s %s\n\n"+
+			"  %-30s %-25s %s\n"+
+			"  %-30s %-25s\n"+
+			"  %-30s %-25s %s\n\n"+
 			"%s\n"+
 			"  "+fmt.Sprintf(i18n.T("net.host_info"), KeyStyle.Render("127.0.0.1"), KeyStyle.Render(m.Config.ServerCfg.Port))+"\n"+
-			"  "+fmt.Sprintf(i18n.T("net.client_info"), KeyStyle.Render(nonEmpty(m.Network.TailscaleIP, m.Network.LocalIP)))+"\n"+
-			"  "+fmt.Sprintf(i18n.T("net.port_info"), KeyStyle.Render(m.Config.ServerCfg.Port))+"\n\n"+
+			"  "+fmt.Sprintf(i18n.T("net.client_info"), KeyStyle.Render(primaryVPNIP))+"\n"+
+			"  "+fmt.Sprintf(i18n.T("net.port_info"), KeyStyle.Render(m.Config.ServerCfg.Port))+"\n"+
+			"  "+DescStyle.Render(i18n.T("net.zt_tip"))+"\n\n"+
 			"%s",
 		LabelStyle.Render(i18n.T("net.interfaces")),
-		i18n.T("net.tailscale"), ValueStyle.Render(nonEmpty(m.Network.TailscaleIP, i18n.T("net.inactive"))), tsBadge,
-		i18n.T("net.local"), ValueStyle.Render(m.Network.LocalIP),
 		i18n.T("net.zerotier"), ValueStyle.Render(nonEmpty(m.Network.ZeroTierIP, i18n.T("net.inactive"))), ztBadge,
+		i18n.T("net.local"), ValueStyle.Render(m.Network.LocalIP),
+		i18n.T("net.tailscale"), ValueStyle.Render(nonEmpty(m.Network.TailscaleIP, i18n.T("net.inactive"))), tsBadge,
 
 		LabelStyle.Render(i18n.T("net.instructions")),
 		DescStyle.Render(i18n.T("net.footer_hint")),

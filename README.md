@@ -42,13 +42,13 @@ botw-manager
   * `[c]`: Connect to Game (launches Cemu and injects multiplayer mod headlessly via `MilkBar.CLI`).
   * `[x]`: Disconnect / Stop active client session.
   * `[e]`: Launch Cemu 1.26.2 (Standalone / Offline).
-  * `[t]`: Copy Tailscale / ZeroTier / LAN IP to clipboard.
+  * `[t]`: Copy ZeroTier / VPN / LAN IP to clipboard.
   * `[q]`: Exit manager.
 * **2. Client & Connect:**
   * Configure multiplayer connection parameters: Target Server IP, Port, Password, Player Name, and Character Model.
   * `[c]` / `[Enter]`: Connect to Game.
   * `[l]`: Set target IP to `127.0.0.1` (Local Host).
-  * `[t]`: Set target IP to detected Tailscale/ZeroTier/LAN IP.
+  * `[t]`: Set target IP to detected ZeroTier / VPN / LAN IP.
   * `[s]`: Save connection parameters.
   * `[x]`: Disconnect active client.
 * **3. Gamemodes:**
@@ -63,7 +63,7 @@ botw-manager
   * `f`: Open native GUI folder browser (*Zenity* / *Kdialog*) to select folders with one click.
   * `Enter`: Save and rebuild Wine/BCML symbolic links.
 * **5. Network:**
-  * View active Tailscale VPN, LAN, and ZeroTier IP addresses with connection guides.
+  * View active ZeroTier (Primary), Tailscale, and LAN IP addresses with connection guides.
 * **6. Settings:**
   * **Language Switcher:** Toggle instantly between **English** (default) and **Español**.
   * Project info, version, and repository links.
@@ -82,10 +82,11 @@ botw-manager
 2. The Host shares their **Local LAN IP** shown in `botw-manager` (e.g., `192.168.1.50`).
 3. Other players open `botw-manager` on their PC, go to Tab `2. Client & Connect`, set Target IP to the Host's LAN IP (`192.168.1.50`), and press `[c]`.
 
-### C. Internet / Remote Friends (Tailscale or ZeroTier VPN)
-1. Connect to the same virtual network ([Tailscale](https://tailscale.com/) or [ZeroTier](https://www.zerotier.com/)) on both Host and Client PCs.
-2. The Host starts the Dedicated Server and copies their VPN IP (press `[t]` in `botw-manager`).
-3. Remote friends open `botw-manager`, go to Tab `2. Client & Connect`, paste the Host's VPN IP, and press `[c]`.
+### C. Internet / Remote Friends (ZeroTier VPN - Recommended)
+1. Create a shared virtual network room on [ZeroTier](https://www.zerotier.com/) and have all players join the network ID (`zerotier-cli join <network-id>`).
+2. The Host starts the Dedicated Server and copies their ZeroTier IP (press `[t]` in `botw-manager`).
+3. Remote friends open `botw-manager`, go to Tab `2. Client & Connect`, paste the Host's ZeroTier IP, and press `[c]`.
+*(Tailscale is also supported if you prefer mesh networking across your personal devices).*
 
 ---
 
