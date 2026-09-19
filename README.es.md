@@ -23,7 +23,7 @@ chmod +x install.sh
 ./install.sh
 ```
 
-> **Nota:** El instalador aprovisiona automáticamente Wine de 64 bits, Microsoft .NET 8.0 Desktop Runtime, Visual C++ 2015–2022, Cemu 1.26.2 (con los parches BCML y los 32 modelos de Link ya fusionados), Milk Bar Launcher y la interfaz CLI `botw-manager`.
+> **Nota:** El instalador aprovisiona automáticamente Wine de 64 bits, Microsoft .NET 8.0 Desktop Runtime, Visual C++ 2015–2022, Cemu 1.26.2 (con los parches BCML y los 32 modelos de Link ya fusionados), Milk Bar Launcher (Servidor y Cliente Headless) y la interfaz CLI `botw-manager`.
 
 ---
 
@@ -39,7 +39,7 @@ botw-manager
 * **Navegación Global:** Presiona `Tab` / `Shift+Tab` o las teclas numéricas `[1]`–`[6]` para alternar entre pestañas en cualquier momento.
 * **1. Dashboard:**
   * `[s]`: Iniciar / Detener Servidor Dedicado (con consola de logs en vivo).
-  * `[c]`: Conectar al Juego (inicia Cemu e inyecta el mod multijugador mediante `MilkBar.CLI`).
+  * `[c]`: Conectar al Juego (inicia Cemu e inyecta el mod multijugador de forma headless mediante `MilkBar.CLI`).
   * `[x]`: Desconectar / Detener la sesión activa del cliente.
   * `[e]`: Lanzar Cemu 1.26.2 (Individual / Sin conexión).
   * `[t]`: Copiar IP de Tailscale / ZeroTier / LAN al portapapeles.
@@ -89,23 +89,16 @@ botw-manager
 
 ---
 
-## 4. Estabilidad de Ventanas en Hyprland / Wayland
+## 4. Arquitectura del Cliente Headless y Estabilidad en Wayland
 
-Si usas **Hyprland**, añade las siguientes reglas a tu archivo `~/.config/hypr/hyprland.lua` para evitar parpadeos en XWayland y mantener Milk Bar Launcher estable como ventana flotante:
+El lanzador original de Milk Bar para Windows utilizaba una interfaz WPF con un temporizador de 50 ms (`CemuFollower`) que intentaba forzar el anidamiento de ventanas Win32 sobre Cemu. En entornos Wayland, XWayland y gestores tipo mosaico (como Hyprland, Sway o SteamOS Game Mode), esto producía parpadeos continuos e inestabilidad de foco.
 
+Esta suite resuelve el problema mediante la integración de **`MilkBar.CLI`**, un cliente mod headless desarrollado en [.NET 8](https://github.com/CarlosEvCode/MilkBarLauncher):
+* **Cero Sobrecarga Gráfica:** La inyección de memoria, la comunicación por Named Pipes y la gestión de procesos de Cemu se ejecutan en segundo plano.
+* **Nativo para Wayland y SteamOS:** Sin conflictos de anidamiento de ventanas Win32, sin robo de foco en XWayland y con estabilidad absoluta.
+
+Regla opcional en Hyprland para Cemu:
 ```lua
-o.window({ class = ".*(milk bar launcher|MilkBar).*" }, {
-  float = true,
-  center = true,
-  size = "1188 670",
-  suppress_event = "activate maximize fullscreen",
-})
-o.window({ title = "^(Breath of the Wild Multiplayer)$" }, {
-  float = true,
-  center = true,
-  size = "1188 670",
-  suppress_event = "activate maximize fullscreen",
-})
 o.window({ class = "^(cemu\\.exe)$" }, {
   opaque = true,
   suppress_event = "maximize",
@@ -118,15 +111,17 @@ o.window({ class = "^(cemu\\.exe)$" }, {
 
 Como referencia técnica, se implementaron las siguientes soluciones para garantizar la estabilidad bajo Wine en Linux:
 
-1. **Wineprefix Compartido de 64 bits (`~/.local/share/wineprefixes/botw-multiplayer`):**
-   * Cemu y Milk Bar Launcher deben ejecutarse en el mismo prefijo para que `InjectDLL.dll` y los Named Pipes puedan conectarse a la memoria de Cemu sin bloqueos de pantalla blanca.
-2. **Microsoft .NET 8.0 Desktop Runtime x64:**
+1. **Cliente Mod Headless (`MilkBar.CLI.exe`):**
+   * Inicia Cemu, procesa los parámetros de configuración, inicializa los Named Pipes e inyecta `InjectDLL.dll` sin dependencias gráficas WPF.
+2. **Wineprefix Compartido de 64 bits (`~/.local/share/wineprefixes/botw-multiplayer`):**
+   * Cemu, el Servidor Dedicado y `MilkBar.CLI` se ejecutan en el mismo prefijo para que `InjectDLL.dll` y los Named Pipes puedan comunicarse con la memoria de Cemu sin bloqueos de pantalla blanca.
+3. **Microsoft .NET 8.0 Desktop Runtime x64:**
    * Instalado directamente en el Wineprefix para solucionar cierres con código de salida 150.
-3. **Validación de Paquetes de Modelos BCML:**
+4. **Validación de Paquetes de Modelos BCML:**
    * Incluye los 32 paquetes de modelos de Link (`Jugador1.sbactorpack` a `Jugador32.sbactorpack`) en `store_dir/merged/content/Actor/Pack/` enlazados a `BreathOfTheWild_BCML`.
-4. **Enlace de Socket del Servidor:**
+5. **Enlace de Socket del Servidor:**
    * `ServerConfig.ini` se configura con `IP=127.0.0.1` y `DefaultGamemode=True` para enlazar inmediatamente el puerto `5050` y evitar excepciones de resolución DNS de `localhost`.
-5. **Sanitización de Recursos en AppData Roaming:**
+6. **Sanitización de Recursos en AppData Roaming:**
    * Extrae `QuestFlagsNames.txt` y `ArmorMapping.txt` en `%APPDATA%/BOTWM/` para evitar errores `FileNotFoundException`.
 
 ---
@@ -134,6 +129,7 @@ Como referencia técnica, se implementaron las siguientes soluciones para garant
 ## 6. Créditos y Atribuciones
 
 * **Milk Bar Launcher & Dedicated Server:** Desarrollado por la comunidad de [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher).
+* **MilkBar.CLI (Cliente Headless):** Mantenido y adaptado para Linux por [CarlosEvCode](https://github.com/CarlosEvCode/MilkBarLauncher).
 * **Cemu (Emulador de Wii U):** Desarrollado por [Team Cemu](https://cemu.info/) bajo licencia Mozilla Public License 2.0.
 * **BCML:** Creado por [NiceneNerd](https://github.com/NiceneNerd/BCML).
 * **Linux Manager y Despliegue:** Mantenido por [CarlosEvCode](https://github.com/CarlosEvCode).
