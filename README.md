@@ -127,7 +127,24 @@ For reference, the following technical solutions were implemented to ensure stab
 
 ---
 
-## 6. Credits & Attribution
+## 6. Uninstallation
+
+To completely uninstall and remove all Wineprefix files, launchers, configurations, and binaries cleanly from your system, run:
+
+```bash
+botw-manager --uninstall
+```
+
+Or via the installer script:
+```bash
+./install.sh --uninstall
+```
+
+> **Note:** Uninstallation will only delete multiplayer suite files and Wine configurations. Your original game dumps, updates, and DLC remain intact and untouched.
+
+---
+
+## 7. Credits & Attribution
 
 * **Milk Bar Launcher & Dedicated Server:** Developed by the [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher) community.
 * **MilkBar.CLI (Headless Client):** Maintained and adapted for Linux by [CarlosEvCode](https://github.com/CarlosEvCode/MilkBarLauncher).

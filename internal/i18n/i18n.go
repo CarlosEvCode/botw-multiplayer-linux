@@ -183,6 +183,7 @@ var translations = map[Language]map[string]string{
 		"set.author":         "Author: CarlosEvCode",
 		"set.github":         "GitHub: https://github.com/CarlosEvCode/botw-multiplayer-linux",
 		"set.stack":          "Built with: Go + Bubble Tea + Wine + Cemu 1.26.2 + Milk Bar Launcher + BCML",
+		"set.uninstall_info": "Automated Uninstaller:  botw-manager --uninstall",
 		"set.desc":           "Full automated manager for hosting, connecting and managing Zelda BotW Multiplayer on Linux.",
 		"set.footer_hint":    "[Tab: Tab]  [←/→ / Space: Switch Language]  [Esc: Back]",
 
@@ -333,6 +334,7 @@ var translations = map[Language]map[string]string{
 		"set.author":         "Autor: CarlosEvCode",
 		"set.github":         "GitHub: https://github.com/CarlosEvCode/botw-multiplayer-linux",
 		"set.stack":          "Creado con: Go + Bubble Tea + Wine + Cemu 1.26.2 + Milk Bar Launcher + BCML",
+		"set.uninstall_info": "Desinstalador automatizado: botw-manager --uninstall",
 		"set.desc":           "Gestor automatizado completo para hostear, conectar y jugar Zelda BotW Multiplayer en Linux.",
 		"set.footer_hint":    "[Tab: Pestana]  [←/→ / Espacio: Cambiar Idioma]  [Esc: Volver]",
 

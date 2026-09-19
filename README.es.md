@@ -127,7 +127,24 @@ Como referencia técnica, se implementaron las siguientes soluciones para garant
 
 ---
 
-## 6. Créditos y Atribuciones
+## 6. Desinstalación Completa
+
+Para desinstalar y eliminar por completo todos los archivos del Wineprefix, lanzadores, configuraciones y binarios de forma limpia de tu sistema, ejecuta:
+
+```bash
+botw-manager --uninstall
+```
+
+O a través del script instalador:
+```bash
+./install.sh --uninstall
+```
+
+> **Nota:** La desinstalación solo eliminará los archivos de la suite multijugador y la configuración de Wine. Tus copias originales del juego base, actualizaciones y DLC permanecerán intactas.
+
+---
+
+## 7. Créditos y Atribuciones
 
 * **Milk Bar Launcher & Dedicated Server:** Desarrollado por la comunidad de [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher).
 * **MilkBar.CLI (Cliente Headless):** Mantenido y adaptado para Linux por [CarlosEvCode](https://github.com/CarlosEvCode/MilkBarLauncher).

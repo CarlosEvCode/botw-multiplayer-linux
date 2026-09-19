@@ -17,6 +17,28 @@ PREFIX_DIR="$USER_HOME/.local/share/wineprefixes/botw-multiplayer"
 DRIVE_C="$PREFIX_DIR/drive_c"
 LAUNCHER_DIR="$USER_HOME/Zelda_BotW_Multiplayer"
 TEMP_DL="/tmp/botw_mp_setup"
+
+# Handle uninstaller flag
+if [ "$1" = "--uninstall" ] || [ "$1" = "-u" ]; then
+    if command -v botw-manager >/dev/null 2>&1; then
+        exec botw-manager --uninstall "$2"
+    elif [ -f "$LAUNCHER_DIR/botw-manager" ]; then
+        exec "$LAUNCHER_DIR/botw-manager" --uninstall "$2"
+    elif [ -f "$SCRIPT_DIR/main.go" ] && command -v go >/dev/null 2>&1; then
+        (cd "$SCRIPT_DIR" && go run main.go --uninstall "$2")
+        exit 0
+    else
+        echo "========================================================================"
+        echo " Zelda: Breath of the Wild Multiplayer - Uninstaller"
+        echo "========================================================================"
+        echo "Stopping active processes and removing files..."
+        wineserver -k 2>/dev/null || true
+        rm -rf "$PREFIX_DIR" "$LAUNCHER_DIR" "$USER_HOME/.local/share/applications/zelda-botw-manager.desktop" "$USER_HOME/.config/botw-manager" "$TEMP_DL" "$USER_HOME/.local/bin/botw-manager"
+        echo "[SUCCESS] Uninstallation completed."
+        exit 0
+    fi
+fi
+
 mkdir -p "$TEMP_DL" "$LAUNCHER_DIR" "$USER_HOME/.local/bin"
 
 echo "========================================================================"

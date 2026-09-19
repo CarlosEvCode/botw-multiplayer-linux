@@ -382,6 +382,7 @@ func (m Model) renderSettingsTab(width int) string {
 			"  ● %s\n"+
 			"  ● %s\n"+
 			"  ● %s\n"+
+			"  ● %s\n"+
 			"  ● %s\n\n"+
 			"%s",
 		LabelStyle.Render(i18n.T("set.pref_title")),
@@ -392,6 +393,7 @@ func (m Model) renderSettingsTab(width int) string {
 		ValueStyle.Render(i18n.T("set.version")+"  •  "+i18n.T("set.author")),
 		ValueStyle.Render(i18n.T("set.github")),
 		ValueStyle.Render(i18n.T("set.stack")),
+		ValueStyle.Render(i18n.T("set.uninstall_info")),
 		DescStyle.Render(i18n.T("set.desc")),
 
 		DescStyle.Render(i18n.T("set.footer_hint")),
