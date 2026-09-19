@@ -9,6 +9,7 @@ REPO_OWNER="CarlosEvCode"
 REPO_NAME="botw-multiplayer-linux"
 RELEASE_TAG="v1.0.0"
 RELEASE_URL="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${RELEASE_TAG}"
+MBL_CLI_RELEASE_URL="https://github.com/${REPO_OWNER}/MilkBarLauncher/releases/latest/download/MilkBar.CLI-win-x64.zip"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" 2>/dev/null && pwd || echo "$HOME")"
 
 USER_HOME="$HOME"
@@ -116,6 +117,19 @@ if [ ! -f "$MBL_ARCHIVE" ]; then
     fi
 fi
 7z x -y "$MBL_ARCHIVE" -o"$DRIVE_C/MilkBarLauncher/" >/dev/null
+
+echo "[*] Deploying MilkBar.CLI (Headless Multiplayer Client)..."
+MBL_CLI_ARCHIVE="$SCRIPT_DIR/MilkBar.CLI-win-x64.zip"
+if [ ! -f "$MBL_CLI_ARCHIVE" ]; then
+    MBL_CLI_ARCHIVE="$TEMP_DL/MilkBar.CLI-win-x64.zip"
+    if [ ! -f "$MBL_CLI_ARCHIVE" ]; then
+        echo "    Downloading MilkBar.CLI from MilkBarLauncher Releases..."
+        curl -fSL "$MBL_CLI_RELEASE_URL" -o "$MBL_CLI_ARCHIVE" || true
+    fi
+fi
+if [ -f "$MBL_CLI_ARCHIVE" ]; then
+    7z x -y "$MBL_CLI_ARCHIVE" -o"$DRIVE_C/MilkBarLauncher/" >/dev/null || true
+fi
 
 # 6. Configure dedicated server defaults
 SERVER_CONFIG="$DRIVE_C/MilkBarLauncher/DedicatedServer/ServerConfig.ini"
