@@ -153,19 +153,38 @@ if [ -f "$MBL_CLI_ARCHIVE" ]; then
     7z x -y "$MBL_CLI_ARCHIVE" -o"$DRIVE_C/MilkBarLauncher/" >/dev/null || true
 fi
 
-# 6. Configure dedicated server defaults
+# 6. Configure dedicated server defaults and .NET rollForward
 SERVER_CONFIG="$DRIVE_C/MilkBarLauncher/DedicatedServer/ServerConfig.ini"
 if [ -f "$SERVER_CONFIG" ]; then
     sed -i 's/^IP=localhost/IP=127.0.0.1/g' "$SERVER_CONFIG"
     sed -i 's/^DefaultGamemode=False/DefaultGamemode=True/g' "$SERVER_CONFIG"
 fi
 
+SERVER_RTCONFIG="$DRIVE_C/MilkBarLauncher/DedicatedServer/MBL.DedicatedServer.runtimeconfig.json"
+if [ -f "$SERVER_RTCONFIG" ]; then
+    cat <<EOF > "$SERVER_RTCONFIG"
+{
+  "runtimeOptions": {
+    "tfm": "net6.0",
+    "rollForward": "Major",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "6.0.0"
+    },
+    "configProperties": {
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
+    }
+  }
+}
+EOF
+fi
+
 # 7. Configure BOTWM Roaming data
 BOTWM_ROAMING="$DRIVE_C/users/$USER/AppData/Roaming/BOTWM"
 mkdir -p "$BOTWM_ROAMING"
-SERVER_RES="$DRIVE_C/MilkBarLauncher/DedicatedServer"
-[ -f "$SERVER_RES/BOTWM.DedicatedServer.AppdataFiles.QuestFlagsNames.txt" ] && cp "$SERVER_RES/BOTWM.DedicatedServer.AppdataFiles.QuestFlagsNames.txt" "$BOTWM_ROAMING/QuestFlagsNames.txt"
-[ -f "$SERVER_RES/BOTWM.DedicatedServer.AppdataFiles.ArmorMapping.txt" ] && cp "$SERVER_RES/BOTWM.DedicatedServer.AppdataFiles.ArmorMapping.txt" "$BOTWM_ROAMING/ArmorMapping.txt"
+if [ -d "$SCRIPT_DIR/AppdataFiles" ]; then
+    cp "$SCRIPT_DIR/AppdataFiles/"* "$BOTWM_ROAMING/" 2>/dev/null || true
+fi
 
 # 8. Configure BCML settings and compatibility merged link
 BCML_LOCAL="$DRIVE_C/users/$USER/AppData/Local/bcml"

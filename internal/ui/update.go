@@ -566,13 +566,22 @@ func (m *Model) saveClientSettings() {
 
 func (m *Model) launchClient() {
 	m.saveClientSettings()
+	validBase, _ := m.Config.ValidateBaseGame()
+	if !validBase || m.Config.BaseGame == "" {
+		m.SetNotification(i18n.T("notif.base_required"), 3*time.Second)
+		m.CurrentTab = TabPaths
+		m.handleTabSwitch()
+		return
+	}
+
 	ip := m.Config.ClientCfg.TargetIP
 	port := m.Config.ClientCfg.TargetPort
 	pass := m.Config.ClientCfg.Password
 	name := m.Config.ClientCfg.PlayerName
 	model := m.Config.ClientCfg.CharacterModel
+	gameRpx := m.Config.GetGameRPXWinePath()
 
-	err := m.Process.StartClient(m.Config.PrefixDir, ip, port, pass, name, model)
+	err := m.Process.StartClient(m.Config.PrefixDir, ip, port, pass, name, model, gameRpx)
 	if err != nil {
 		m.SetNotification(fmt.Sprintf("Error: %v", err), 3*time.Second)
 	} else {

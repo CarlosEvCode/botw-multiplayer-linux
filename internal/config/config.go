@@ -441,6 +441,17 @@ func (c *ManagerConfig) SavePaths(baseGame, updatePath, dlcPath string) error {
 	return nil
 }
 
+func (c *ManagerConfig) GetGameRPXWinePath() string {
+	if c.BaseGame == "" {
+		return ""
+	}
+	gameFolder := filepath.Base(c.BaseGame)
+	if gameFolder == "" || gameFolder == "." {
+		gameFolder = "The Legend of Zelda Breath of the Wild"
+	}
+	return fmt.Sprintf("C:\\Games\\%s\\code\\U-King.rpx", gameFolder)
+}
+
 func (c *ManagerConfig) ValidateBaseGame() (bool, string) {
 	if c.BaseGame == "" {
 		return false, i18n.T("paths.val_not_set")

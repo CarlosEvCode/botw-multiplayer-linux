@@ -211,7 +211,7 @@ func (p *ProcessManager) IsClientRunning() bool {
 	return p.clientCmd != nil && p.clientCmd.Process != nil && p.clientCmd.ProcessState == nil
 }
 
-func (p *ProcessManager) StartClient(prefixDir, ip, port, password, playerName, model string) error {
+func (p *ProcessManager) StartClient(prefixDir, ip, port, password, playerName, model, gameRpx string) error {
 	p.mu.Lock()
 	if p.clientCmd != nil && p.clientCmd.Process != nil && p.clientCmd.ProcessState == nil {
 		p.mu.Unlock()
@@ -244,6 +244,9 @@ func (p *ProcessManager) StartClient(prefixDir, ip, port, password, playerName, 
 		}
 		if model != "" {
 			args = append(args, "--model", model)
+		}
+		if gameRpx != "" {
+			args = append(args, "--game", gameRpx)
 		}
 	}
 

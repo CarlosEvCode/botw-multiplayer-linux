@@ -1,0 +1,10 @@
+[18:56:52] System.IO.FileNotFoundException: Could not find file 'Z:\home\evcode\Downloads\btow_multiplayer\Linux\Backup_Linux_Setup\Landmarks.json'.
+File name: 'Z:\home\evcode\Downloads\btow_multiplayer\Linux\Backup_Linux_Setup\Landmarks.json'
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.CreateFile(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options)
+   at Microsoft.Win32.SafeHandles.SafeFileHandle.Open(String fullPath, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.OSFileStreamStrategy..ctor(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.Strategies.FileStreamHelpers.ChooseStrategyCore(String path, FileMode mode, FileAccess access, FileShare share, FileOptions options, Int64 preallocationSize, Nullable`1 unixCreateMode)
+   at System.IO.StreamReader.ValidateArgsAndOpenPath(String path, Encoding encoding, Int32 bufferSize)
+   at System.IO.File.ReadAllText(String path, Encoding encoding)
+   at BOTW.DedicatedServer.DedicatedServer..ctor() in E:\BreathOfTheWildMultiplayer\PythonProject\Github\MilkBarLauncher\C#\BOTW.DedicatedServer\DedicatedServer.cs:line 104
+   at Program.<Main>$(String[] args) in E:\BreathOfTheWildMultiplayer\PythonProject\Github\MilkBarLauncher\C#\BOTW.DedicatedServer\Program.cs:line 21
