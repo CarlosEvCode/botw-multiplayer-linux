@@ -57,6 +57,14 @@ type ServerConfigData struct {
 	SpecialMode  int // 0 = Standard Co-op, 1 = Hunter vs Speedrunner, 2 = DeathSwap
 }
 
+type ClientConfigData struct {
+	TargetIP       string `json:"target_ip"`
+	TargetPort     string `json:"target_port"`
+	Password       string `json:"password"`
+	PlayerName     string `json:"player_name"`
+	CharacterModel string `json:"character_model"`
+}
+
 type ManagerConfig struct {
 	PrefixDir   string
 	DriveC      string
@@ -68,6 +76,7 @@ type ManagerConfig struct {
 	User        string
 	BCMLSetting BCMLSettings
 	ServerCfg   ServerConfigData
+	ClientCfg   ClientConfigData
 }
 
 func GetDefaultPrefix() string {
@@ -141,6 +150,13 @@ func LoadConfig() (*ManagerConfig, error) {
 			Description: "Explore Hyrule with Friends!",
 			SpecialMode: 0,
 		},
+		ClientCfg: ClientConfigData{
+			TargetIP:       "127.0.0.1",
+			TargetPort:     "5050",
+			Password:       "",
+			PlayerName:     "Link",
+			CharacterModel: "Link:Link",
+		},
 	}
 
 	// Read BCML settings.json if exists
@@ -174,8 +190,59 @@ func LoadConfig() (*ManagerConfig, error) {
 
 	// Read ServerConfig.ini
 	cfg.LoadServerConfig()
+	// Read Client config
+	cfg.LoadClientConfig()
 
 	return cfg, nil
+}
+
+func (c *ManagerConfig) LoadClientConfig() {
+	home, _ := os.UserHomeDir()
+	p := filepath.Join(home, ".config/botw-manager/client.json")
+	if data, err := os.ReadFile(p); err == nil {
+		var cc ClientConfigData
+		if err := json.Unmarshal(data, &cc); err == nil {
+			if cc.TargetIP != "" {
+				c.ClientCfg.TargetIP = cc.TargetIP
+			}
+			if cc.TargetPort != "" {
+				c.ClientCfg.TargetPort = cc.TargetPort
+			}
+			c.ClientCfg.Password = cc.Password
+			if cc.PlayerName != "" {
+				c.ClientCfg.PlayerName = cc.PlayerName
+			}
+			if cc.CharacterModel != "" {
+				c.ClientCfg.CharacterModel = cc.CharacterModel
+			}
+		}
+	}
+}
+
+func (c *ManagerConfig) SaveClientConfig(cc ClientConfigData) error {
+	c.ClientCfg = cc
+	if c.ClientCfg.TargetIP == "" {
+		c.ClientCfg.TargetIP = "127.0.0.1"
+	}
+	if c.ClientCfg.TargetPort == "" {
+		c.ClientCfg.TargetPort = "5050"
+	}
+	if c.ClientCfg.PlayerName == "" {
+		c.ClientCfg.PlayerName = "Link"
+	}
+	if c.ClientCfg.CharacterModel == "" {
+		c.ClientCfg.CharacterModel = "Link:Link"
+	}
+
+	home, _ := os.UserHomeDir()
+	p := filepath.Join(home, ".config/botw-manager/client.json")
+	_ = os.MkdirAll(filepath.Dir(p), 0755)
+
+	data, err := json.MarshalIndent(c.ClientCfg, "", "  ")
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(p, data, 0644)
 }
 
 func (c *ManagerConfig) LoadServerConfig() {

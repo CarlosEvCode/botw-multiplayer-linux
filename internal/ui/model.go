@@ -16,6 +16,7 @@ type Tab int
 
 const (
 	TabDashboard Tab = iota
+	TabClient
 	TabGamemodes
 	TabPaths
 	TabNetwork
@@ -40,6 +41,14 @@ type Model struct {
 	Height       int
 	Viewport     viewport.Model
 
+	// Client & Connect inputs
+	ClientCursor  int
+	ClientIPIn    textinput.Model
+	ClientPortIn  textinput.Model
+	ClientPassIn  textinput.Model
+	ClientNameIn  textinput.Model
+	ClientModelIn textinput.Model
+
 	// Gamemodes cursor
 	GamemodeCursor int
 	ServerPassIn   textinput.Model
@@ -56,6 +65,27 @@ type Model struct {
 
 func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
 	i18n.LoadLanguage()
+
+	// Client inputs
+	cIP := textinput.New()
+	cIP.Placeholder = "127.0.0.1 or friend's Tailscale/LAN IP"
+	cIP.SetValue(cfg.ClientCfg.TargetIP)
+
+	cPort := textinput.New()
+	cPort.Placeholder = "5050"
+	cPort.SetValue(cfg.ClientCfg.TargetPort)
+
+	cPass := textinput.New()
+	cPass.Placeholder = "Empty if server has no password"
+	cPass.SetValue(cfg.ClientCfg.Password)
+
+	cName := textinput.New()
+	cName.Placeholder = "Link"
+	cName.SetValue(cfg.ClientCfg.PlayerName)
+
+	cModel := textinput.New()
+	cModel.Placeholder = "Link:Link"
+	cModel.SetValue(cfg.ClientCfg.CharacterModel)
 
 	baseIn := textinput.New()
 	baseIn.Placeholder = "/path/to/The Legend of Zelda Breath of the Wild"
@@ -86,6 +116,12 @@ func NewModel(cfg *config.ManagerConfig, proc *process.ProcessManager) Model {
 		Network:        network.GetNetworkInfo(),
 		CurrentTab:     TabDashboard,
 		Viewport:       vp,
+		ClientCursor:   0,
+		ClientIPIn:     cIP,
+		ClientPortIn:   cPort,
+		ClientPassIn:   cPass,
+		ClientNameIn:   cName,
+		ClientModelIn:  cModel,
 		BaseInput:      baseIn,
 		UpdateInput:    upIn,
 		DLCInput:       dlcIn,

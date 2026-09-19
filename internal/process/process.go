@@ -18,6 +18,7 @@ type ProcessManager struct {
 	serverStdin  io.WriteCloser
 	serverLogs   []string
 	maxLogs      int
+	clientCmd    *exec.Cmd
 	milkBarCmd   *exec.Cmd
 	cemuCmd      *exec.Cmd
 	onLogMessage func(line string)
@@ -200,6 +201,108 @@ func (p *ProcessManager) StopServer() error {
 		time.Sleep(2 * time.Second)
 		_ = proc.Kill()
 	}(p.serverCmd.Process)
+
+	return nil
+}
+
+func (p *ProcessManager) IsClientRunning() bool {
+	p.mu.RLock()
+	defer p.mu.RUnlock()
+	return p.clientCmd != nil && p.clientCmd.Process != nil && p.clientCmd.ProcessState == nil
+}
+
+func (p *ProcessManager) StartClient(prefixDir, ip, port, password, playerName, model string) error {
+	p.mu.Lock()
+	if p.clientCmd != nil && p.clientCmd.Process != nil && p.clientCmd.ProcessState == nil {
+		p.mu.Unlock()
+		return fmt.Errorf("la sesion multijugador ya se encuentra en ejecucion")
+	}
+	p.mu.Unlock()
+
+	clientExe := filepath.Join(prefixDir, "drive_c/MilkBarLauncher/MilkBar.CLI.exe")
+	if _, err := os.Stat(clientExe); err != nil {
+		// Fallback to Milk Bar Launcher.exe if CLI not present
+		clientExe = filepath.Join(prefixDir, "drive_c/MilkBarLauncher/Milk Bar Launcher.exe")
+		if _, err2 := os.Stat(clientExe); err2 != nil {
+			return fmt.Errorf("no se encontro MilkBar.CLI.exe ni el lanzador en %s", clientExe)
+		}
+	}
+
+	args := []string{clientExe}
+	if strings.HasSuffix(clientExe, "MilkBar.CLI.exe") {
+		if ip != "" {
+			args = append(args, "--ip", ip)
+		}
+		if port != "" {
+			args = append(args, "--port", port)
+		}
+		if password != "" {
+			args = append(args, "--password", password)
+		}
+		if playerName != "" {
+			args = append(args, "--name", playerName)
+		}
+		if model != "" {
+			args = append(args, "--model", model)
+		}
+	}
+
+	cmd := exec.Command("wine", args...)
+	cmd.Dir = filepath.Dir(clientExe)
+	cmd.Env = append(os.Environ(),
+		"WINEARCH=win64",
+		fmt.Sprintf("WINEPREFIX=%s", prefixDir),
+		"WINEDEBUG=-all",
+		"WINE_FULLSCREEN_FSR=1",
+	)
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("error creando stdout pipe del cliente: %w", err)
+	}
+
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return fmt.Errorf("error creando stderr pipe del cliente: %w", err)
+	}
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("error iniciando cliente multijugador: %w", err)
+	}
+
+	p.mu.Lock()
+	p.clientCmd = cmd
+	p.mu.Unlock()
+
+	p.AddLog("Cliente multijugador iniciado (PID: %d) -> Conectando a %s:%s", cmd.Process.Pid, ip, port)
+
+	go p.streamPipe(stdout)
+	go p.streamPipe(stderr)
+
+	go func() {
+		_ = cmd.Wait()
+		p.mu.Lock()
+		p.clientCmd = nil
+		p.mu.Unlock()
+		p.AddLog("Cliente multijugador desconectado.")
+	}()
+
+	return nil
+}
+
+func (p *ProcessManager) StopClient() error {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	if p.clientCmd == nil || p.clientCmd.Process == nil {
+		return nil
+	}
+
+	_ = p.clientCmd.Process.Signal(syscall.SIGTERM)
+	go func(proc *os.Process) {
+		time.Sleep(2 * time.Second)
+		_ = proc.Kill()
+	}(p.clientCmd.Process)
 
 	return nil
 }

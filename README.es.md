@@ -36,27 +36,35 @@ botw-manager
 ```
 
 ### Funciones y Atajos de Teclado
-* **Navegación Global:** Presiona `Tab` / `Shift+Tab` para alternar entre pestañas en cualquier momento.
+* **Navegación Global:** Presiona `Tab` / `Shift+Tab` o las teclas numéricas `[1]`–`[6]` para alternar entre pestañas en cualquier momento.
 * **1. Dashboard:**
   * `[s]`: Iniciar / Detener Servidor Dedicado (con consola de logs en vivo).
-  * `[m]`: Lanzar Milk Bar Launcher.
-  * `[c]`: Lanzar Cemu 1.26.2.
-  * `[t]`: Copiar IP de Tailscale / LAN al portapapeles.
+  * `[c]`: Conectar al Juego (inicia Cemu e inyecta el mod multijugador mediante `MilkBar.CLI`).
+  * `[x]`: Desconectar / Detener la sesión activa del cliente.
+  * `[e]`: Lanzar Cemu 1.26.2 (Individual / Sin conexión).
+  * `[t]`: Copiar IP de Tailscale / ZeroTier / LAN al portapapeles.
   * `[q]`: Salir de la aplicación.
-* **2. Gamemodes:**
+* **2. Cliente & Conexión:**
+  * Configura los parámetros de conexión multijugador: IP del servidor destino, puerto, contraseña, nombre del jugador y modelo del personaje.
+  * `[c]` / `[Enter]`: Conectar al Juego.
+  * `[l]`: Fijar IP destino a `127.0.0.1` (Anfitrión Local).
+  * `[t]`: Fijar IP destino a la IP detectada de Tailscale/ZeroTier/LAN.
+  * `[s]`: Guardar parámetros de conexión.
+  * `[x]`: Desconectar cliente activo.
+* **3. Modos de Juego:**
   * `←` / `→`: Alternar modos de juego:
     * **Cooperativo Estándar (Libre):** Modo cooperativo con sincronizaciones totalmente personalizables.
     * **Hunter vs Speedrunner:** Modo competitivo Manhunt (bloquea el progreso individual automáticamente).
     * **DeathSwap:** Modo de supervivencia con intercambio de posiciones periódicas (bloquea sincronizaciones de progreso).
   * `Espacio`: Alternar reglas de sincronización individuales (Misiones, Santuarios, Torres, Kologs, Enemigos, Mazmorras, Ubicaciones).
   * `s`: Guardar reglas (reinicia el servidor automáticamente si está corriendo).
-* **3. Rutas & DLC:**
+* **4. Rutas & DLC:**
   * `↓` / `↑`: Seleccionar campo (Juego Base, Update v208, DLC v80).
   * `f`: Abrir el explorador de carpetas gráfico del sistema (*Zenity* / *Kdialog*) para elegir rutas con un clic.
   * `Enter`: Guardar y reconstruir los enlaces simbólicos de Wine y BCML.
-* **4. Red:**
+* **5. Red:**
   * Muestra las interfaces activas de Tailscale VPN, Red Local LAN y ZeroTier con instrucciones de conexión.
-* **5. Ajustes:**
+* **6. Ajustes:**
   * **Selector de Idioma:** Cambia instantáneamente entre **English** y **Español**.
   * Información del proyecto, versión y enlaces al repositorio.
 
@@ -66,27 +74,18 @@ botw-manager
 
 ### A. Anfitrión Local (Jugando en la misma PC)
 1. Abre `botw-manager` y presiona `[s]` para iniciar el Servidor Dedicado.
-2. Presiona `[m]` para abrir Milk Bar Launcher.
-3. En Milk Bar Launcher, ingresa:
-   * **IP:** `127.0.0.1`
-   * **Puerto:** `5050`
-4. Haz clic en **Connect** (Cemu se abrirá automáticamente sincronizado).
+2. Presiona `[c]` para conectar inmediatamente (o ve a la Pestaña `2. Cliente & Conexión` y verifica `127.0.0.1:5050`).
+3. Cemu se abrirá automáticamente sincronizado sin ninguna ventana gráfica intermedia de Wine.
 
 ### B. Red Local (LAN / Misma Wi-Fi o Ethernet)
 1. El Anfitrión inicia el Servidor Dedicado en `botw-manager` (presionando `[s]`).
-2. El Anfitrión consulta su **IP Local LAN** en `botw-manager` (ej. `192.168.1.50`).
-3. Los demás jugadores en la misma red local abren Milk Bar Launcher e ingresan:
-   * **IP:** `IP LAN del Anfitrión` (ej. `192.168.1.50`)
-   * **Puerto:** `5050`
-4. Hacen clic en **Connect**.
+2. El Anfitrión comparte su **IP Local LAN** mostrada en `botw-manager` (ej. `192.168.1.50`).
+3. Los demás jugadores abren `botw-manager` en sus equipos, van a la Pestaña `2. Cliente & Conexión`, ingresan la IP LAN del Anfitrión (`192.168.1.50`) y presionan `[c]`.
 
 ### C. Internet / Amigos Remotos (VPN Tailscale o ZeroTier)
-1. Instala y conéctate a la misma red virtual ([Tailscale](https://tailscale.com/) o [ZeroTier](https://www.zerotier.com/)) tanto en el equipo del Anfitrión como en el de los clientes.
+1. Conéctate a la misma red virtual ([Tailscale](https://tailscale.com/) o [ZeroTier](https://www.zerotier.com/)) tanto en el equipo del Anfitrión como en el de los clientes.
 2. El Anfitrión inicia el Servidor Dedicado y copia su IP de VPN (presionando `[t]` en `botw-manager`).
-3. Los jugadores remotos abren Milk Bar Launcher e ingresan:
-   * **IP:** `IP de Tailscale o ZeroTier del Anfitrión` (ej. `100.x.y.z` o `10.x.y.z`)
-   * **Puerto:** `5050`
-4. Hacen clic en **Connect**.
+3. Los jugadores remotos abren `botw-manager`, van a la Pestaña `2. Cliente & Conexión`, pegan la IP de VPN del Anfitrión y presionan `[c]`.
 
 ---
 

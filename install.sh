@@ -236,13 +236,19 @@ cd "\$WINEPREFIX/drive_c/MilkBarLauncher/DedicatedServer" || exit 1
 wine "\$WINEPREFIX/drive_c/MilkBarLauncher/DedicatedServer/MBL.DedicatedServer.exe"
 EOF
 
-cat <<EOF > "$LAUNCHER_DIR/2_iniciar_milkbar.sh"
+cat <<EOF > "$LAUNCHER_DIR/2_conectar_cliente.sh"
 #!/usr/bin/env bash
 export WINEARCH=win64
 export WINEPREFIX="$PREFIX_DIR"
 export WINEDEBUG=-all
 cd "\$WINEPREFIX/drive_c/MilkBarLauncher" || exit 1
-wine "\$WINEPREFIX/drive_c/MilkBarLauncher/Milk Bar Launcher.exe"
+TARGET_IP="\${1:-127.0.0.1}"
+TARGET_PORT="\${2:-5050}"
+if [ -f "\$WINEPREFIX/drive_c/MilkBarLauncher/MilkBar.CLI.exe" ]; then
+    wine "\$WINEPREFIX/drive_c/MilkBarLauncher/MilkBar.CLI.exe" --ip "\$TARGET_IP" --port "\$TARGET_PORT"
+else
+    wine "\$WINEPREFIX/drive_c/MilkBarLauncher/Milk Bar Launcher.exe"
+fi
 EOF
 
 cat <<EOF > "$LAUNCHER_DIR/3_iniciar_cemu.sh"

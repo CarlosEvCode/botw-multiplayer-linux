@@ -36,6 +36,8 @@ func (m Model) View() string {
 	switch m.CurrentTab {
 	case TabDashboard:
 		sb.WriteString(m.renderDashboard(width))
+	case TabClient:
+		sb.WriteString(m.renderClientTab(width))
 	case TabGamemodes:
 		sb.WriteString(m.renderGamemodesTab(width))
 	case TabPaths:
@@ -57,6 +59,7 @@ func (m Model) renderTabs() string {
 
 	tabNames := []string{
 		i18n.T("tab.dashboard"),
+		i18n.T("tab.client"),
 		i18n.T("tab.gamemodes"),
 		i18n.T("tab.paths"),
 		i18n.T("tab.network"),
@@ -87,11 +90,11 @@ func (m Model) renderDashboard(width int) string {
 		srvStatus = StatusStopped.String()
 	}
 
-	var milkStatus string
-	if m.Process.IsMilkBarRunning() {
-		milkStatus = StatusRunning.String()
+	var clientStatus string
+	if m.Process.IsClientRunning() {
+		clientStatus = StatusRunning.String()
 	} else {
-		milkStatus = StatusStopped.String()
+		clientStatus = StatusStopped.String()
 	}
 
 	var cemuStatus string
@@ -103,9 +106,9 @@ func (m Model) renderDashboard(width int) string {
 
 	modeName := getSpecialModeName(m.Config.ServerCfg.SpecialMode)
 	srvContent := fmt.Sprintf(
-		"%s %-18s %s\n%s %-18s %s\n%s %-18s %s\n\n%-15s %s",
+		"%s %-22s %s\n%s %-22s %s\n%s %-22s %s\n\n%-15s %s",
 		LabelStyle.Render("●"), i18n.T("dash.srv_dedicated"), srvStatus,
-		LabelStyle.Render("●"), i18n.T("dash.srv_milkbar"), milkStatus,
+		LabelStyle.Render("●"), i18n.T("dash.srv_client"), clientStatus,
 		LabelStyle.Render("●"), i18n.T("dash.srv_cemu"), cemuStatus,
 		LabelStyle.Render(i18n.T("dash.srv_mode")), ValueStyle.Render(modeName),
 	)
@@ -148,6 +151,49 @@ func (m Model) renderDashboard(width int) string {
 	)
 
 	return topRow + "\n" + consoleBox
+}
+
+func (m Model) renderClientTab(width int) string {
+	boxWidth := width - 4
+
+	cur := func(idx int, text string) string {
+		if m.ClientCursor == idx {
+			return lipgloss.NewStyle().Bold(true).Foreground(ColorHighlight).Render("▶ " + text)
+		}
+		return "  " + text
+	}
+
+	var clientStatusStr string
+	if m.Process.IsClientRunning() {
+		clientStatusStr = StatusRunning.String() + " " + lipgloss.NewStyle().Foreground(ColorSuccess).Render(i18n.T("client.status_running"))
+	} else {
+		clientStatusStr = StatusStopped.String() + " " + lipgloss.NewStyle().Foreground(ColorMuted).Render(i18n.T("client.status_ready"))
+	}
+
+	items := []string{
+		fmt.Sprintf("%s %s", LabelStyle.Render(i18n.T("client.status")), clientStatusStr),
+		"",
+		LabelStyle.Render(i18n.T("client.header_params")),
+		fmt.Sprintf("%s: %s", cur(0, i18n.T("client.target_ip")), m.ClientIPIn.View()),
+		fmt.Sprintf("%s: %s", cur(1, i18n.T("client.target_port")), m.ClientPortIn.View()),
+		fmt.Sprintf("%s: %s", cur(2, i18n.T("client.password")), m.ClientPassIn.View()),
+		fmt.Sprintf("%s: %s", cur(3, i18n.T("client.player_name")), m.ClientNameIn.View()),
+		fmt.Sprintf("%s: %s", cur(4, i18n.T("client.model")), m.ClientModelIn.View()),
+		"",
+		LabelStyle.Render(i18n.T("client.quick_actions")),
+		fmt.Sprintf("  %s   %s   %s   %s",
+			KeyStyle.Render(i18n.T("client.btn_connect")),
+			KeyStyle.Render(i18n.T("client.btn_local")),
+			KeyStyle.Render(i18n.T("client.btn_vpn")),
+			KeyStyle.Render(i18n.T("client.btn_save")),
+		),
+		"",
+		DescStyle.Render(i18n.T("client.footer_hint")),
+	}
+
+	return BoxStyle.Width(boxWidth).Render(
+		TitleStyle.Render(i18n.T("client.title")) + "\n\n" + strings.Join(items, "\n"),
+	)
 }
 
 func (m Model) renderGamemodesTab(width int) string {
@@ -350,10 +396,8 @@ func (m Model) renderSettingsTab(width int) string {
 func (m Model) renderFooter(width int) string {
 	keys := []string{
 		KeyStyle.Render("[s]") + " " + DescStyle.Render(i18n.T("foot.server")),
-		KeyStyle.Render("[m]") + " " + DescStyle.Render(i18n.T("foot.milkbar")),
-		KeyStyle.Render("[c]") + " " + DescStyle.Render(i18n.T("foot.cemu")),
-		KeyStyle.Render("[g]") + " " + DescStyle.Render(i18n.T("foot.gamemodes")),
-		KeyStyle.Render("[r]") + " " + DescStyle.Render(i18n.T("foot.paths")),
+		KeyStyle.Render("[c]") + " " + DescStyle.Render(i18n.T("foot.client")),
+		KeyStyle.Render("[e]") + " " + DescStyle.Render(i18n.T("foot.cemu")),
 		KeyStyle.Render("[t]") + " " + DescStyle.Render(i18n.T("foot.copy_ip")),
 		KeyStyle.Render("[Tab]") + " " + DescStyle.Render(i18n.T("foot.tab")),
 		KeyStyle.Render("[q]") + " " + DescStyle.Render(i18n.T("foot.quit")),

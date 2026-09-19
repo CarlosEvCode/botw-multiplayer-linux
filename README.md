@@ -36,27 +36,35 @@ botw-manager
 ```
 
 ### Key Features & Controls
-* **Global Navigation:** Press `Tab` / `Shift+Tab` to switch between tabs at any time.
+* **Global Navigation:** Press `Tab` / `Shift+Tab` or number keys `[1]`–`[6]` to switch between tabs at any time.
 * **1. Dashboard:**
   * `[s]`: Start / Stop Dedicated Server (live log console stream).
-  * `[m]`: Launch Milk Bar Launcher.
-  * `[c]`: Launch Cemu 1.26.2.
-  * `[t]`: Copy Tailscale / LAN IP to clipboard.
+  * `[c]`: Connect to Game (launches Cemu and injects multiplayer mod via `MilkBar.CLI`).
+  * `[x]`: Disconnect / Stop active client session.
+  * `[e]`: Launch Cemu 1.26.2 (Standalone / Offline).
+  * `[t]`: Copy Tailscale / ZeroTier / LAN IP to clipboard.
   * `[q]`: Exit manager.
-* **2. Gamemodes:**
+* **2. Client & Connect:**
+  * Configure multiplayer connection parameters: Target Server IP, Port, Password, Player Name, and Character Model.
+  * `[c]` / `[Enter]`: Connect to Game.
+  * `[l]`: Set target IP to `127.0.0.1` (Local Host).
+  * `[t]`: Set target IP to detected Tailscale/ZeroTier/LAN IP.
+  * `[s]`: Save connection parameters.
+  * `[x]`: Disconnect active client.
+* **3. Gamemodes:**
   * `←` / `→`: Cycle game modes:
     * **Standard Co-op (Free):** Full story co-op with customizable sync options.
     * **Hunter vs Speedrunner:** Competitive Manhunt mode (automatically enforces individual player progress).
     * **DeathSwap:** High-stakes survival swap mode (auto-locks survival rules).
   * `Space`: Toggle individual synchronization rules (Quests, Shrines, Towers, Koroks, Enemies, Dungeons, Locations).
   * `s`: Save rules (auto-restarts server if currently active).
-* **3. Paths & DLC:**
+* **4. Paths & DLC:**
   * `↓` / `↑`: Select field (Base Game, Update v208, DLC v80).
   * `f`: Open native GUI folder browser (*Zenity* / *Kdialog*) to select folders with one click.
   * `Enter`: Save and rebuild Wine/BCML symbolic links.
-* **4. Network:**
+* **5. Network:**
   * View active Tailscale VPN, LAN, and ZeroTier IP addresses with connection guides.
-* **5. Settings:**
+* **6. Settings:**
   * **Language Switcher:** Toggle instantly between **English** (default) and **Español**.
   * Project info, version, and repository links.
 
@@ -66,27 +74,18 @@ botw-manager
 
 ### A. Local Host (Playing on the same PC)
 1. Launch `botw-manager` and press `[s]` to start the Dedicated Server.
-2. Press `[m]` to launch Milk Bar Launcher.
-3. In Milk Bar Launcher, enter:
-   * **IP:** `127.0.0.1`
-   * **Port:** `5050`
-4. Click **Connect** (Cemu will launch automatically and sync your game).
+2. Press `[c]` to connect immediately (or go to Tab `2. Client & Connect` and verify `127.0.0.1:5050`).
+3. Cemu will launch automatically with multiplayer active, without any background Wine GUI windows.
 
 ### B. Local Network (LAN / Same Wi-Fi or Ethernet)
 1. The Host starts the Dedicated Server in `botw-manager` (press `[s]`).
-2. The Host finds their **Local LAN IP** in `botw-manager` (e.g., `192.168.1.50`).
-3. Other players on the same home network open Milk Bar Launcher and enter:
-   * **IP:** `Host's LAN IP` (e.g., `192.168.1.50`)
-   * **Port:** `5050`
-4. Click **Connect**.
+2. The Host shares their **Local LAN IP** shown in `botw-manager` (e.g., `192.168.1.50`).
+3. Other players open `botw-manager` on their PC, go to Tab `2. Client & Connect`, set Target IP to the Host's LAN IP (`192.168.1.50`), and press `[c]`.
 
 ### C. Internet / Remote Friends (Tailscale or ZeroTier VPN)
-1. Install and connect to the same VPN mesh network ([Tailscale](https://tailscale.com/) or [ZeroTier](https://www.zerotier.com/)) on both Host and Client machines.
+1. Connect to the same virtual network ([Tailscale](https://tailscale.com/) or [ZeroTier](https://www.zerotier.com/)) on both Host and Client PCs.
 2. The Host starts the Dedicated Server and copies their VPN IP (press `[t]` in `botw-manager`).
-3. Remote friends open Milk Bar Launcher and enter:
-   * **IP:** `Host's Tailscale/ZeroTier IP` (e.g., `100.x.y.z` or `10.x.y.z`)
-   * **Port:** `5050`
-4. Click **Connect**.
+3. Remote friends open `botw-manager`, go to Tab `2. Client & Connect`, paste the Host's VPN IP, and press `[c]`.
 
 ---
 

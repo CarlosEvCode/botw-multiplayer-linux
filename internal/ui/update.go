@@ -35,6 +35,11 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.BaseInput.Width = inputW
 		m.UpdateInput.Width = inputW
 		m.DLCInput.Width = inputW
+		m.ClientIPIn.Width = 35
+		m.ClientPortIn.Width = 15
+		m.ClientPassIn.Width = 35
+		m.ClientNameIn.Width = 35
+		m.ClientModelIn.Width = 35
 		m.ServerPassIn.Width = 35
 		m.ServerDescIn.Width = 50
 
@@ -70,29 +75,92 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, tickEvery(1*time.Second))
 
 	case tea.KeyMsg:
-		// Global Tab navigation across all 5 tabs
+		// Global Tab navigation across all 6 tabs
 		switch msg.String() {
 		case "tab":
-			m.CurrentTab = (m.CurrentTab + 1) % 5
-			if m.CurrentTab == TabPaths {
-				m.updatePathFocus()
-			} else if m.CurrentTab == TabGamemodes {
-				m.updateGamemodeFocus()
-			} else {
-				m.blurPathInputs()
-			}
+			m.CurrentTab = (m.CurrentTab + 1) % 6
+			m.handleTabSwitch()
 			return m, nil
 
 		case "shift+tab":
-			m.CurrentTab = (m.CurrentTab + 4) % 5
-			if m.CurrentTab == TabPaths {
-				m.updatePathFocus()
-			} else if m.CurrentTab == TabGamemodes {
-				m.updateGamemodeFocus()
-			} else {
-				m.blurPathInputs()
-			}
+			m.CurrentTab = (m.CurrentTab + 5) % 6
+			m.handleTabSwitch()
 			return m, nil
+
+		case "1":
+			m.CurrentTab = TabDashboard
+			m.handleTabSwitch()
+			return m, nil
+		case "2":
+			m.CurrentTab = TabClient
+			m.handleTabSwitch()
+			return m, nil
+		case "3":
+			m.CurrentTab = TabGamemodes
+			m.handleTabSwitch()
+			return m, nil
+		case "4":
+			m.CurrentTab = TabPaths
+			m.handleTabSwitch()
+			return m, nil
+		case "5":
+			m.CurrentTab = TabNetwork
+			m.handleTabSwitch()
+			return m, nil
+		case "6":
+			m.CurrentTab = TabSettings
+			m.handleTabSwitch()
+			return m, nil
+		}
+
+		// When in Client & Connect Tab
+		if m.CurrentTab == TabClient {
+			switch msg.String() {
+			case "esc":
+				m.CurrentTab = TabDashboard
+				m.blurClientInputs()
+				return m, nil
+			case "down":
+				m.ClientCursor = (m.ClientCursor + 1) % 5
+				m.updateClientFocus()
+				return m, nil
+			case "up":
+				m.ClientCursor = (m.ClientCursor + 4) % 5
+				m.updateClientFocus()
+				return m, nil
+			case "l":
+				if m.ClientCursor == 0 {
+					m.ClientIPIn.SetValue("127.0.0.1")
+					m.SetNotification(i18n.T("notif.client_set_local"), 2*time.Second)
+					return m, nil
+				}
+			case "ctrl+s", "s":
+				m.saveClientSettings()
+				return m, nil
+			case "enter", "c":
+				m.launchClient()
+				return m, nil
+			case "x":
+				if m.Process.IsClientRunning() {
+					_ = m.Process.StopClient()
+					m.SetNotification(i18n.T("notif.client_stopping"), 2*time.Second)
+				}
+				return m, nil
+			}
+
+			switch m.ClientCursor {
+			case 0:
+				m.ClientIPIn, cmd = m.ClientIPIn.Update(msg)
+			case 1:
+				m.ClientPortIn, cmd = m.ClientPortIn.Update(msg)
+			case 2:
+				m.ClientPassIn, cmd = m.ClientPassIn.Update(msg)
+			case 3:
+				m.ClientNameIn, cmd = m.ClientNameIn.Update(msg)
+			case 4:
+				m.ClientModelIn, cmd = m.ClientModelIn.Update(msg)
+			}
+			return m, cmd
 		}
 
 		// When in Gamemodes Tab
@@ -252,7 +320,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-		// Global Keybindings
+		// Global Keybindings (Dashboard & Top-level)
 		switch msg.String() {
 		case "ctrl+c", "q":
 			return m, tea.Quit
@@ -266,19 +334,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if err != nil {
 					m.SetNotification(fmt.Sprintf(i18n.T("notif.srv_error"), err), 3*time.Second)
 				} else {
-					m.SetNotification(i18n.T("notif.srv_started"), 2*time.Second)
+					m.SetNotification(fmt.Sprintf(i18n.T("notif.srv_started"), m.Config.ServerCfg.Port), 2*time.Second)
 				}
-			}
-		case "m":
-			err := m.Process.StartMilkBar(m.Config.PrefixDir)
-			if err != nil {
-				m.SetNotification(fmt.Sprintf("%s: %v", i18n.T("dash.srv_milkbar"), err), 3*time.Second)
-			} else {
-				m.SetNotification(i18n.T("notif.milkbar_starting"), 2*time.Second)
 			}
 			return m, nil
 
 		case "c":
+			m.launchClient()
+			return m, nil
+
+		case "x":
+			if m.Process.IsClientRunning() {
+				_ = m.Process.StopClient()
+				m.SetNotification(i18n.T("notif.client_stopping"), 2*time.Second)
+			}
+			return m, nil
+
+		case "e":
 			err := m.Process.StartCemu(m.Config.PrefixDir)
 			if err != nil {
 				m.SetNotification(fmt.Sprintf("%s: %v", i18n.T("dash.srv_cemu"), err), 3*time.Second)
@@ -298,18 +370,6 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				_ = network.CopyToClipboard(m.Network.LocalIP)
 				m.SetNotification(fmt.Sprintf(i18n.T("notif.local_ip_copied"), m.Network.LocalIP), 2*time.Second)
 			}
-			return m, nil
-
-		case "g":
-			m.CurrentTab = TabGamemodes
-			m.GamemodeCursor = 0
-			m.updateGamemodeFocus()
-			return m, nil
-
-		case "r":
-			m.CurrentTab = TabPaths
-			m.PathFocusIdx = 0
-			m.updatePathFocus()
 			return m, nil
 		}
 	}
@@ -457,6 +517,79 @@ func (m *Model) updatePathFocus() {
 	case 2:
 		m.DLCInput.Focus()
 	}
+}
+
+func (m *Model) handleTabSwitch() {
+	m.blurClientInputs()
+	m.ServerPassIn.Blur()
+	m.ServerDescIn.Blur()
+	m.blurPathInputs()
+
+	switch m.CurrentTab {
+	case TabClient:
+		m.updateClientFocus()
+	case TabGamemodes:
+		m.updateGamemodeFocus()
+	case TabPaths:
+		m.updatePathFocus()
+	}
+}
+
+func (m *Model) saveClientSettings() {
+	m.Config.ClientCfg.TargetIP = strings.TrimSpace(m.ClientIPIn.Value())
+	m.Config.ClientCfg.TargetPort = strings.TrimSpace(m.ClientPortIn.Value())
+	m.Config.ClientCfg.Password = strings.TrimSpace(m.ClientPassIn.Value())
+	m.Config.ClientCfg.PlayerName = strings.TrimSpace(m.ClientNameIn.Value())
+	m.Config.ClientCfg.CharacterModel = strings.TrimSpace(m.ClientModelIn.Value())
+
+	err := m.Config.SaveClientConfig(m.Config.ClientCfg)
+	if err != nil {
+		m.SetNotification(fmt.Sprintf("Error: %v", err), 3*time.Second)
+	} else {
+		m.SetNotification(i18n.T("notif.client_saved"), 2*time.Second)
+	}
+}
+
+func (m *Model) launchClient() {
+	m.saveClientSettings()
+	ip := m.Config.ClientCfg.TargetIP
+	port := m.Config.ClientCfg.TargetPort
+	pass := m.Config.ClientCfg.Password
+	name := m.Config.ClientCfg.PlayerName
+	model := m.Config.ClientCfg.CharacterModel
+
+	err := m.Process.StartClient(m.Config.PrefixDir, ip, port, pass, name, model)
+	if err != nil {
+		m.SetNotification(fmt.Sprintf("Error: %v", err), 3*time.Second)
+	} else {
+		m.SetNotification(fmt.Sprintf(i18n.T("notif.client_starting"), ip, port), 3*time.Second)
+	}
+	m.CurrentTab = TabDashboard
+	m.handleTabSwitch()
+}
+
+func (m *Model) updateClientFocus() {
+	m.blurClientInputs()
+	switch m.ClientCursor {
+	case 0:
+		m.ClientIPIn.Focus()
+	case 1:
+		m.ClientPortIn.Focus()
+	case 2:
+		m.ClientPassIn.Focus()
+	case 3:
+		m.ClientNameIn.Focus()
+	case 4:
+		m.ClientModelIn.Focus()
+	}
+}
+
+func (m *Model) blurClientInputs() {
+	m.ClientIPIn.Blur()
+	m.ClientPortIn.Blur()
+	m.ClientPassIn.Blur()
+	m.ClientNameIn.Blur()
+	m.ClientModelIn.Blur()
 }
 
 func (m *Model) blurPathInputs() {

@@ -74,16 +74,17 @@ var translations = map[Language]map[string]string{
 
 		// Tabs
 		"tab.dashboard": "1. Dashboard",
-		"tab.gamemodes": "2. Gamemodes",
-		"tab.paths":     "3. Paths & DLC",
-		"tab.network":   "4. Network",
-		"tab.settings":  "5. Settings",
+		"tab.client":    "2. Client & Connect",
+		"tab.gamemodes": "3. Gamemodes",
+		"tab.paths":     "4. Paths & DLC",
+		"tab.network":   "5. Network",
+		"tab.settings":  "6. Settings",
 
 		// Dashboard
 		"dash.services_title": "SERVICES STATUS",
 		"dash.srv_dedicated":  "Dedicated Server",
-		"dash.srv_milkbar":    "Milk Bar Launcher",
-		"dash.srv_cemu":       "Cemu 1.26.2",
+		"dash.srv_client":     "Multiplayer Game Client",
+		"dash.srv_cemu":       "Cemu 1.26.2 (Offline)",
 		"dash.srv_mode":       "Server Mode:",
 		"dash.net_title":      "CONNECTIVITY",
 		"dash.net_tailscale":  "Tailscale IP:",
@@ -92,7 +93,26 @@ var translations = map[Language]map[string]string{
 		"dash.net_pass":       "Server Password:",
 		"dash.net_nopass":     "No password",
 		"dash.net_notfound":   "Not detected",
-		"dash.console_title":  "CONSOLE & LOGS (DEDICATED SERVER)",
+		"dash.console_title":  "CONSOLE & LOGS",
+
+		// Client Tab
+		"client.title":         "MULTIPLAYER CLIENT & DIRECT CONNECTION",
+		"client.header_params": "CONNECTION PARAMETERS:",
+		"client.target_ip":     "1. Target Server IP",
+		"client.target_port":   "2. Server Port",
+		"client.password":      "3. Server Password (optional)",
+		"client.player_name":   "4. Player Display Name",
+		"client.model":         "5. Character Model",
+		"client.quick_actions": "ACTIONS & SHORTCUTS:",
+		"client.btn_connect":   "[c / Enter: Connect to Game]",
+		"client.btn_disconnect":"[x: Disconnect Client]",
+		"client.btn_local":     "[l: Set to 127.0.0.1 (Local Host)]",
+		"client.btn_vpn":       "[t: Set to VPN / LAN IP]",
+		"client.btn_save":      "[s: Save Parameters]",
+		"client.status":        "Client Status:",
+		"client.status_ready":  "Ready to launch Cemu and connect.",
+		"client.status_running":"Multiplayer session active in Cemu.",
+		"client.footer_hint":   "[Tab: Tab]  [↓/↑: Select field]  [c/Enter: Connect]  [s: Save]  [l: Local IP]  [Esc: Back]",
 
 		// Gamemodes
 		"gm.title":            "GAMEMODES & DEDICATED SERVER CONFIGURATION",
@@ -166,7 +186,7 @@ var translations = map[Language]map[string]string{
 
 		// Footer
 		"foot.server":    "Server",
-		"foot.milkbar":   "MilkBar",
+		"foot.client":    "Connect",
 		"foot.cemu":      "Cemu",
 		"foot.gamemodes": "Gamemodes",
 		"foot.paths":     "Paths",
@@ -176,9 +196,13 @@ var translations = map[Language]map[string]string{
 
 		// Notifications
 		"notif.srv_stopping":     "Stopping dedicated server...",
-		"notif.srv_started":      "Server started on port 5050",
+		"notif.srv_started":      "Server started on port %s",
 		"notif.srv_error":        "Error starting server: %v",
-		"notif.milkbar_starting": "Launching Milk Bar Launcher...",
+		"notif.client_starting":  "Launching Cemu & connecting to %s:%s...",
+		"notif.client_stopping":  "Disconnecting multiplayer client...",
+		"notif.client_saved":     "Client connection parameters saved!",
+		"notif.client_set_local": "Target IP set to 127.0.0.1 (Local Host)",
+		"notif.client_set_vpn":   "Target IP set to detected VPN/LAN IP: %s",
 		"notif.cemu_starting":    "Launching Cemu 1.26.2...",
 		"notif.ip_copied":        "Tailscale IP copied: %s",
 		"notif.zt_ip_copied":     "ZeroTier IP copied: %s",
@@ -198,16 +222,17 @@ var translations = map[Language]map[string]string{
 
 		// Tabs
 		"tab.dashboard": "1. Dashboard",
-		"tab.gamemodes": "2. Gamemodes",
-		"tab.paths":     "3. Rutas & DLC",
-		"tab.network":   "4. Red",
-		"tab.settings":  "5. Ajustes",
+		"tab.client":    "2. Cliente & Conexión",
+		"tab.gamemodes": "3. Modos de Juego",
+		"tab.paths":     "4. Rutas & DLC",
+		"tab.network":   "5. Red",
+		"tab.settings":  "6. Ajustes",
 
 		// Dashboard
 		"dash.services_title": "ESTADO DE SERVICIOS",
 		"dash.srv_dedicated":  "Servidor Dedicado",
-		"dash.srv_milkbar":    "Milk Bar Launcher",
-		"dash.srv_cemu":       "Cemu 1.26.2",
+		"dash.srv_client":     "Cliente Multijugador",
+		"dash.srv_cemu":       "Cemu 1.26.2 (Sin conexión)",
 		"dash.srv_mode":       "Modo Servidor:",
 		"dash.net_title":      "CONECTIVIDAD",
 		"dash.net_tailscale":  "IP Tailscale:",
@@ -216,7 +241,26 @@ var translations = map[Language]map[string]string{
 		"dash.net_pass":       "Clave Servidor:",
 		"dash.net_nopass":     "Sin clave",
 		"dash.net_notfound":   "No detectado",
-		"dash.console_title":  "CONSOLA & REGISTROS (SERVIDOR DEDICADO)",
+		"dash.console_title":  "CONSOLA & REGISTROS",
+
+		// Client Tab
+		"client.title":         "CONFIGURACION DEL CLIENTE Y CONEXION DIRECTA",
+		"client.header_params": "PARAMETROS DE CONEXION:",
+		"client.target_ip":     "1. IP del Servidor Destino",
+		"client.target_port":   "2. Puerto del Servidor",
+		"client.password":      "3. Contrasena del Servidor (opcional)",
+		"client.player_name":   "4. Nombre del Jugador",
+		"client.model":         "5. Modelo del Personaje",
+		"client.quick_actions": "ACCIONES & ATAJOS:",
+		"client.btn_connect":   "[c / Enter: Conectar al Juego]",
+		"client.btn_disconnect":"[x: Desconectar Cliente]",
+		"client.btn_local":     "[l: Fijar a 127.0.0.1 (Anfitrion Local)]",
+		"client.btn_vpn":       "[t: Fijar a IP de Tailscale/ZeroTier]",
+		"client.btn_save":      "[s: Guardar Parametros]",
+		"client.status":        "Estado del Cliente:",
+		"client.status_ready":  "Listo para abrir Cemu y conectar.",
+		"client.status_running":"Sesion multijugador activa en Cemu.",
+		"client.footer_hint":   "[Tab: Pestana]  [↓/↑: Seleccionar campo]  [c/Enter: Conectar]  [s: Guardar]  [l: IP Local]  [Esc: Volver]",
 
 		// Gamemodes
 		"gm.title":            "CONFIGURACION DE GAMEMODES Y SERVIDOR DEDICADO",
@@ -290,7 +334,7 @@ var translations = map[Language]map[string]string{
 
 		// Footer
 		"foot.server":    "Servidor",
-		"foot.milkbar":   "MilkBar",
+		"foot.client":    "Conectar",
 		"foot.cemu":      "Cemu",
 		"foot.gamemodes": "Gamemodes",
 		"foot.paths":     "Rutas",
@@ -300,9 +344,13 @@ var translations = map[Language]map[string]string{
 
 		// Notifications
 		"notif.srv_stopping":     "Deteniendo servidor dedicado...",
-		"notif.srv_started":      "Servidor iniciado en puerto 5050",
+		"notif.srv_started":      "Servidor iniciado en puerto %s",
 		"notif.srv_error":        "Error iniciando servidor: %v",
-		"notif.milkbar_starting": "Lanzando Milk Bar Launcher...",
+		"notif.client_starting":  "Lanzando Cemu y conectando a %s:%s...",
+		"notif.client_stopping":  "Desconectando cliente multijugador...",
+		"notif.client_saved":     "Parametros de conexion guardados!",
+		"notif.client_set_local": "IP fijada a 127.0.0.1 (Anfitrion Local)",
+		"notif.client_set_vpn":   "IP fijada a la VPN/LAN detectada: %s",
 		"notif.cemu_starting":    "Lanzando Cemu 1.26.2...",
 		"notif.ip_copied":        "IP de Tailscale copiada: %s",
 		"notif.zt_ip_copied":     "IP de ZeroTier copiada: %s",
