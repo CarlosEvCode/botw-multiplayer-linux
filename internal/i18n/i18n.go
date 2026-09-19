@@ -70,7 +70,7 @@ func T(key string) string {
 
 var translations = map[Language]map[string]string{
 	LangEN: {
-		"app.title": "ZELDA: BREATH OF THE WILD MULTIPLAYER MANAGER",
+		"app.title": "BOTW MULTIPLAYER MANAGER",
 
 		// Tabs
 		"tab.dashboard": "1. Dashboard",
@@ -218,7 +218,7 @@ var translations = map[Language]map[string]string{
 		"notif.lang_changed":     "Language switched to English!",
 	},
 	LangES: {
-		"app.title": "ZELDA: BREATH OF THE WILD MULTIPLAYER MANAGER",
+		"app.title": "BOTW MULTIPLAYER MANAGER",
 
 		// Tabs
 		"tab.dashboard": "1. Dashboard",
