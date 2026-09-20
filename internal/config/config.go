@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/assets"
 	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/i18n"
 )
 
@@ -192,6 +193,10 @@ func LoadConfig() (*ManagerConfig, error) {
 	cfg.LoadServerConfig()
 	// Read Client config
 	cfg.LoadClientConfig()
+
+	// Ensure AppData Roaming BOTWM files exist
+	botwmRoaming := filepath.Join(driveC, "users", user, "AppData/Roaming/BOTWM")
+	_ = assets.EnsureAppdataFiles(botwmRoaming)
 
 	return cfg, nil
 }

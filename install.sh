@@ -184,6 +184,14 @@ BOTWM_ROAMING="$DRIVE_C/users/$USER/AppData/Roaming/BOTWM"
 mkdir -p "$BOTWM_ROAMING"
 if [ -d "$SCRIPT_DIR/AppdataFiles" ]; then
     cp "$SCRIPT_DIR/AppdataFiles/"* "$BOTWM_ROAMING/" 2>/dev/null || true
+else
+    APPDATA_TAR="$TEMP_DL/AppdataFiles.tar.gz"
+    if [ ! -f "$APPDATA_TAR" ]; then
+        curl -fSL "$RELEASE_URL/AppdataFiles.tar.gz" -o "$APPDATA_TAR" 2>/dev/null || true
+    fi
+    if [ -f "$APPDATA_TAR" ]; then
+        tar -xzf "$APPDATA_TAR" -C "$BOTWM_ROAMING/" 2>/dev/null || true
+    fi
 fi
 
 # 8. Configure BCML settings and compatibility merged link

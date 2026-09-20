@@ -10,6 +10,8 @@ import (
 	"sync"
 	"syscall"
 	"time"
+
+	"github.com/CarlosEvCode/botw-multiplayer-linux/internal/assets"
 )
 
 type ProcessManager struct {
@@ -86,6 +88,37 @@ func (p *ProcessManager) StartServer(prefixDir string) error {
 	if _, err := os.Stat(serverExe); err != nil {
 		return fmt.Errorf("no se encontro el binario del servidor en %s", serverExe)
 	}
+
+	// Ensure MBL.DedicatedServer.runtimeconfig.json has rollForward: Major for .NET 8 compatibility
+	rtConfig := filepath.Join(workDir, "MBL.DedicatedServer.runtimeconfig.json")
+	if data, err := os.ReadFile(rtConfig); err == nil {
+		if !strings.Contains(string(data), `"rollForward"`) {
+			patched := `{
+  "runtimeOptions": {
+    "tfm": "net6.0",
+    "rollForward": "Major",
+    "framework": {
+      "name": "Microsoft.NETCore.App",
+      "version": "6.0.0"
+    },
+    "configProperties": {
+      "System.Reflection.Metadata.MetadataUpdater.IsSupported": false
+    }
+  }
+}`
+			_ = os.WriteFile(rtConfig, []byte(patched), 0644)
+		}
+	}
+
+	// Ensure BOTWM AppData files exist
+	user := os.Getenv("USER")
+	if user == "" {
+		if home, err := os.UserHomeDir(); err == nil {
+			user = filepath.Base(home)
+		}
+	}
+	botwmRoaming := filepath.Join(prefixDir, "drive_c/users", user, "AppData/Roaming/BOTWM")
+	_ = assets.EnsureAppdataFiles(botwmRoaming)
 
 	cmd := exec.Command("wine", serverExe)
 	cmd.Dir = workDir
