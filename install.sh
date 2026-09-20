@@ -181,7 +181,7 @@ fi
 # 6. Configure dedicated server defaults and .NET rollForward
 SERVER_CONFIG="$DRIVE_C/MilkBarLauncher/DedicatedServer/ServerConfig.ini"
 if [ -f "$SERVER_CONFIG" ]; then
-    sed -i 's/^IP=localhost/IP=127.0.0.1/g' "$SERVER_CONFIG"
+    sed -i 's/^IP=.*/IP=0.0.0.0/g' "$SERVER_CONFIG"
     sed -i 's/^DefaultGamemode=False/DefaultGamemode=True/g' "$SERVER_CONFIG"
 fi
 

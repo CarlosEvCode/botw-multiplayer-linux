@@ -146,7 +146,7 @@ func LoadConfig() (*ManagerConfig, error) {
 		MilkBarDir: milkBarDir,
 		User:       user,
 		ServerCfg: ServerConfigData{
-			IP:          "127.0.0.1",
+			IP:          "0.0.0.0",
 			Port:        "5050",
 			Description: "Explore Hyrule with Friends!",
 			SpecialMode: 0,
@@ -305,7 +305,7 @@ func (c *ManagerConfig) LoadServerConfig() {
 func (c *ManagerConfig) SaveServerConfig(sc ServerConfigData) error {
 	c.ServerCfg = sc
 	if c.ServerCfg.IP == "" {
-		c.ServerCfg.IP = "127.0.0.1"
+		c.ServerCfg.IP = "0.0.0.0"
 	}
 	if c.ServerCfg.Port == "" {
 		c.ServerCfg.Port = "5050"
