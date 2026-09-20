@@ -6,7 +6,38 @@ An automated deployment installer, dedicated TUI Manager, and comprehensive tech
 
 ---
 
-## 1. Quick Installation
+## 1. Prerequisites & System Dependencies
+
+Before running the installer, make sure your Linux system has `wine`, `p7zip`, and `curl` installed:
+
+### Install Dependencies by Distribution
+
+* **Arch Linux / SteamOS / Manjaro:**
+  ```bash
+  sudo pacman -S wine p7zip curl
+  ```
+  *(Optional GUI folder picker):* `sudo pacman -S zenity`
+
+* **Ubuntu / Debian / Pop!_OS / Linux Mint:**
+  ```bash
+  sudo apt update && sudo apt install -y wine p7zip-full curl
+  ```
+  *(Optional GUI folder picker):* `sudo apt install -y zenity`
+
+* **Fedora / Nobara / RHEL:**
+  ```bash
+  sudo dnf install -y wine p7zip p7zip-plugins curl
+  ```
+  *(Optional GUI folder picker):* `sudo dnf install -y zenity`
+
+* **openSUSE (Tumbleweed / Leap):**
+  ```bash
+  sudo zypper install -y wine p7zip curl
+  ```
+
+---
+
+## 2. Quick Installation
 
 Run this single command in your terminal to download, configure, and install everything automatically:
 
@@ -27,7 +58,7 @@ chmod +x install.sh
 
 ---
 
-## 2. TUI Manager (`botw-manager`)
+## 3. TUI Manager (`botw-manager`)
 
 Manage servers, clients, gamemodes, routes, and network IPs directly from your terminal:
 
@@ -70,7 +101,7 @@ botw-manager
 
 ---
 
-## 3. Multiplayer Connection Guide
+## 4. Multiplayer Connection Guide
 
 ### A. Local Host (Playing on the same PC)
 1. Launch `botw-manager` and press `[s]` to start the Dedicated Server.
@@ -90,7 +121,7 @@ botw-manager
 
 ---
 
-## 4. Headless Client Architecture & Wayland Stability
+## 5. Headless Client Architecture & Wayland Stability
 
 The original Windows Milk Bar Launcher used a WPF interface with a 50ms polling timer (`CemuFollower`) that attempted to force reparenting of Win32 windows over Cemu. Under XWayland and tiling window managers (such as Hyprland, Sway, or SteamOS Game Mode), this caused severe window flickering and focus thrashing.
 
@@ -108,7 +139,7 @@ o.window({ class = "^(cemu\\.exe)$" }, {
 
 ---
 
-## 5. Technical Architecture & Linux Compatibility Notes
+## 6. Technical Architecture & Linux Compatibility Notes
 
 For reference, the following technical solutions were implemented to ensure stability under Wine on Linux:
 
@@ -127,7 +158,7 @@ For reference, the following technical solutions were implemented to ensure stab
 
 ---
 
-## 6. Uninstallation
+## 7. Uninstallation
 
 To completely uninstall and remove all Wineprefix files, launchers, configurations, and binaries cleanly from your system, run:
 
@@ -144,7 +175,7 @@ Or via the installer script:
 
 ---
 
-## 7. Credits & Attribution
+## 8. Credits & Attribution
 
 * **Milk Bar Launcher & Dedicated Server:** Developed by the [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher) community.
 * **MilkBar.CLI (Headless Client):** Maintained and adapted for Linux by [CarlosEvCode](https://github.com/CarlosEvCode/MilkBarLauncher).

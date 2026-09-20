@@ -6,7 +6,38 @@ Instalador automatizado, TUI Manager interactivo y entorno técnico completo par
 
 ---
 
-## 1. Instalación Rápida
+## 1. Requisitos Previos y Dependencias del Sistema
+
+Antes de ejecutar el instalador, asegúrate de tener instalados `wine`, `p7zip` y `curl` en tu sistema Linux:
+
+### Instalar dependencias según tu distribución
+
+* **Arch Linux / SteamOS / Manjaro:**
+  ```bash
+  sudo pacman -S wine p7zip curl
+  ```
+  *(Opcional - Selector de carpetas GUI):* `sudo pacman -S zenity`
+
+* **Ubuntu / Debian / Pop!_OS / Linux Mint:**
+  ```bash
+  sudo apt update && sudo apt install -y wine p7zip-full curl
+  ```
+  *(Opcional - Selector de carpetas GUI):* `sudo apt install -y zenity`
+
+* **Fedora / Nobara / RHEL:**
+  ```bash
+  sudo dnf install -y wine p7zip p7zip-plugins curl
+  ```
+  *(Opcional - Selector de carpetas GUI):* `sudo dnf install -y zenity`
+
+* **openSUSE (Tumbleweed / Leap):**
+  ```bash
+  sudo zypper install -y wine p7zip curl
+  ```
+
+---
+
+## 2. Instalación Rápida
 
 Ejecuta este comando en tu terminal para descargar, configurar e instalar todo automáticamente:
 
@@ -27,7 +58,7 @@ chmod +x install.sh
 
 ---
 
-## 2. TUI Manager (`botw-manager`)
+## 3. TUI Manager (`botw-manager`)
 
 Administra servidores, clientes, modos de juego, rutas del juego y direcciones IP de red directamente desde tu terminal:
 
@@ -70,7 +101,7 @@ botw-manager
 
 ---
 
-## 3. Guía de Conexión Multijugador
+## 4. Guía de Conexión Multijugador
 
 ### A. Anfitrión Local (Jugando en la misma PC)
 1. Abre `botw-manager` y presiona `[s]` para iniciar el Servidor Dedicado.
@@ -90,7 +121,7 @@ botw-manager
 
 ---
 
-## 4. Arquitectura del Cliente Headless y Estabilidad en Wayland
+## 5. Arquitectura del Cliente Headless y Estabilidad en Wayland
 
 El lanzador original de Milk Bar para Windows utilizaba una interfaz WPF con un temporizador de 50 ms (`CemuFollower`) que intentaba forzar el anidamiento de ventanas Win32 sobre Cemu. En entornos Wayland, XWayland y gestores tipo mosaico (como Hyprland, Sway o SteamOS Game Mode), esto producía parpadeos continuos e inestabilidad de foco.
 
@@ -108,7 +139,7 @@ o.window({ class = "^(cemu\\.exe)$" }, {
 
 ---
 
-## 5. Arquitectura Técnica y Notas de Compatibilidad
+## 6. Arquitectura Técnica y Notas de Compatibilidad
 
 Como referencia técnica, se implementaron las siguientes soluciones para garantizar la estabilidad bajo Wine en Linux:
 
@@ -127,7 +158,7 @@ Como referencia técnica, se implementaron las siguientes soluciones para garant
 
 ---
 
-## 6. Desinstalación Completa
+## 7. Desinstalación Completa
 
 Para desinstalar y eliminar por completo todos los archivos del Wineprefix, lanzadores, configuraciones y binarios de forma limpia de tu sistema, ejecuta:
 
@@ -144,7 +175,7 @@ O a través del script instalador:
 
 ---
 
-## 7. Créditos y Atribuciones
+## 8. Créditos y Atribuciones
 
 * **Milk Bar Launcher & Dedicated Server:** Desarrollado por la comunidad de [MilkBarModding](https://github.com/MilkBarModding/MilkBarLauncher).
 * **MilkBar.CLI (Cliente Headless):** Mantenido y adaptado para Linux por [CarlosEvCode](https://github.com/CarlosEvCode/MilkBarLauncher).

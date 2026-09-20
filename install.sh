@@ -48,9 +48,34 @@ echo ""
 
 # 1. Dependency checks
 echo "[*] Checking system dependencies..."
-command -v wine >/dev/null 2>&1 || { echo "[ERROR] 'wine' is required. Please install wine from your package manager."; exit 1; }
-command -v curl >/dev/null 2>&1 || { echo "[ERROR] 'curl' is required. Please install curl."; exit 1; }
-command -v 7z >/dev/null 2>&1 || command -v 7za >/dev/null 2>&1 || { echo "[ERROR] '7z' (p7zip) is required."; exit 1; }
+MISSING_DEPS=()
+command -v wine >/dev/null 2>&1 || MISSING_DEPS+=("wine")
+command -v curl >/dev/null 2>&1 || MISSING_DEPS+=("curl")
+if ! command -v 7z >/dev/null 2>&1 && ! command -v 7za >/dev/null 2>&1; then
+    MISSING_DEPS+=("p7zip / 7z")
+fi
+
+if [ ${#MISSING_DEPS[@]} -gt 0 ]; then
+    echo ""
+    echo "========================================================================"
+    echo " [ERROR] Missing required system dependencies: ${MISSING_DEPS[*]}"
+    echo "========================================================================"
+    echo " Please install the required packages using your distribution's package manager:"
+    echo ""
+    echo " • Arch Linux / SteamOS / Manjaro:"
+    echo "   sudo pacman -S wine p7zip curl"
+    echo ""
+    echo " • Ubuntu / Debian / Pop!_OS / Linux Mint:"
+    echo "   sudo apt update && sudo apt install -y wine p7zip-full curl"
+    echo ""
+    echo " • Fedora / Nobara / RHEL:"
+    echo "   sudo dnf install -y wine p7zip p7zip-plugins curl"
+    echo ""
+    echo " • openSUSE (Tumbleweed / Leap):"
+    echo "   sudo zypper install -y wine p7zip curl"
+    echo "========================================================================"
+    exit 1
+fi
 
 # Determine terminal for desktop launcher
 TERMINAL_BIN="xterm"
